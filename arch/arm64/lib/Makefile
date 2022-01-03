@@ -22,11 +22,20 @@ obj-$(CONFIG_ARM64_LSE_ATOMICS) += atomic_ll_sc.o
 else
 lib-$(CONFIG_ARM64_LSE_ATOMICS) += atomic_ll_sc.o
 endif
+ifeq ($(cc-name),clang)
+CFLAGS_atomic_ll_sc.o	:= -ffixed-x1 -ffixed-x2        		\
+		   -ffixed-x3 -ffixed-x4 -ffixed-x5 -ffixed-x6		\
+		   -ffixed-x7 -fcall-saved-x8 -fcall-saved-x9		\
+		   -fcall-saved-x10 -fcall-saved-x11 -fcall-saved-x12	\
+		   -fcall-saved-x13 -fcall-saved-x14 -fcall-saved-x15	\
+		   -fcall-saved-x18 -fomit-frame-pointer
+else
 CFLAGS_atomic_ll_sc.o	:= -fcall-used-x0 -ffixed-x1 -ffixed-x2		\
 		   -ffixed-x3 -ffixed-x4 -ffixed-x5 -ffixed-x6		\
 		   -ffixed-x7 -fcall-saved-x8 -fcall-saved-x9		\
 		   -fcall-saved-x10 -fcall-saved-x11 -fcall-saved-x12	\
 		   -fcall-saved-x13 -fcall-saved-x14 -fcall-saved-x15	\
 		   -fcall-saved-x18 -fomit-frame-pointer
+endif
 		   
 obj-$(CONFIG_CRC32) += crc32.o

@@ -691,12 +691,23 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3_OFAST_SUB_OPTIONS
-KBUILD_CFLAGS   += -O3 -fno-signed-zeros -fassociative-math -fno-trapping-math -freciprocal-math -fno-math-errno $(call cc-disable-warning,maybe-uninitialized,)
+KBUILD_CFLAGS   += -O3 -fno-signed-zeros -fassociative-math -fno-trapping-math -freciprocal-math -fno-math-errno $(call cc-disable-warning,maybe-uninitialized,) $(CFLAGS)
+KBUILD_CPPFLAGS += -O3
+KBUILD_AFLAGS   += -O3 -mcpu=cortex-a53
+LDFLAGS         += -O3
+KBUILD_LDFLAGS  += -O3
 else ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
 else
 KBUILD_CFLAGS   += -O3
 endif
+
+ifeq ($(cc-name),clang)
+# Add Some optimization flags for clang
+KBUILD_CFLAGS	+= -O3 -mcpu=cortex-a53 \
+-fomit-frame-pointer -pipe \
+-ffunction-sections \
+-ffp-model=fast -foptimize-sibling-calls $(CFLAGS)
 
 # Enable Clang Polly optimizations
 KBUILD_CFLAGS	+= -mllvm -polly \
@@ -729,6 +740,26 @@ KBUILD_CFLAGS	+= -mllvm -polly \
 			 -mllvm -polly-ast-detect-parallel $(CFLAGS)
                           #-mllvm -polly-no-early-exit
 endif                          
+
+# Add EXP New Pass Manager for clang
+KBUILD_CFLAGS	+= -fexperimental-new-pass-manager
+#endif
+
+#### too lazy to remove doubles...
+KBUILD_CFLAGS	+= -fasynchronous-unwind-tables -fexceptions -fno-semantic-interposition -D_FORTIFY_SOURCE=2 \
+-fno-strict-aliasing \
+-pthread -Wall -Wformat-security -fwrapv --param=ssp-buffer-size=32 \
+-D_REENTRANT $(CFLAGS)
+
+#-g
+
+#
+
+#####KBUILD_CFLAGS += $(call cc-ifversion, -lt, 0409, \
+			$(call cc-disable-warning,maybe-uninitialized,))
+
+# Add EXP New Pass Manager for clang
+KBUILD_CFLAGS	+= $(call cc-option,-fexperimental-new-pass-manager)
 
 ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS	+= -Werror

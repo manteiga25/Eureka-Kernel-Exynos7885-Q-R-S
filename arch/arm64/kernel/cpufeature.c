@@ -1,4 +1,4 @@
-/*
+/*		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  * Contains CPU feature definitions
  *
  * Copyright (C) 2015 ARM Ltd.
@@ -732,6 +732,17 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
 		.enable = cpu_enable_pan,
 	},
 #endif /* CONFIG_ARM64_PAN */
+#ifdef CONFIG_ARM64_CRC32
+{
+		.desc = "CRC32 instructions",
+		.capability = ARM64_HAS_CRC32,
+		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
+		.matches = has_cpuid_feature,
+		.sys_reg = SYS_ID_AA64ISAR0_EL1,
+		.field_pos = ID_AA64ISAR0_CRC32_SHIFT,
+		.min_field_value = 1,
+},
+#endif
 #if defined(CONFIG_AS_LSE) && defined(CONFIG_ARM64_LSE_ATOMICS)
 	{
 		.desc = "LSE atomic instructions",

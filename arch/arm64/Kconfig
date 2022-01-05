@@ -1292,7 +1292,7 @@ config COMPAT
 config KUSER_HELPERS
 	bool "Enable the kuser helpers page in 32-bit processes"
 	depends on COMPAT
-	default y
+	default n
 	help
 	  Warning: disabling this option may break 32-bit applications.
 
@@ -1327,7 +1327,7 @@ config COMPAT_VDSO
 	bool "32-bit vDSO"
 	depends on COMPAT
 	select ARM_ARCH_TIMER_VCT_ACCESS
-	default n
+	default y
 	help
 	  Warning: a 32-bit toolchain is necessary to build the vDSO. You
 	  must explicitly define which toolchain should be used by setting

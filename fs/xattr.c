@@ -326,7 +326,7 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
 	void *kvalue = NULL;
 	void *vvalue = NULL;	/* If non-NULL, we used vmalloc() */
 	char kname[XATTR_NAME_MAX + 1];
-	char kvalue_onstrack[256];
+	char kvalue_onstack[256];
 
 	if (flags & ~(XATTR_CREATE|XATTR_REPLACE))
 		return -EINVAL;
@@ -339,7 +339,7 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
 
 	if (size) {
 		if (size <= ARRAY_SIZE(kvalue_onstack)) {
-		        kvalue = kvalue_onsyack;
+		        kvalue = kvalue_onstack;
 		} else {
 		       if (size > XATTR_SIZE_MAX)
 		               size = XATTR_SIZE_MAX;
@@ -364,7 +364,7 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
 out:
 	if (vvalue)
 		vfree(vvalue);
-	else
+	else if (kvalue != kvalue_onstack)
 		kfree(kvalue);
 	return error;
 }

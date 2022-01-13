@@ -322,8 +322,8 @@ void update_vsyscall(struct timekeeper *tk)
 	vdso_data->wtm_clock_nsec		= wtm->tv_nsec;
 
 	if (!vdso_data->use_syscall) {
-	        struct timespec btm = ktime_to_timespec(tk->offs_boot);
-	        
+		struct timespec btm = ktime_to_timespec(tk->offs_boot);
+
 		vdso_data->cs_cycle_last	= tk->tkr_mono.cycle_last;
 		vdso_data->raw_time_sec		= tk->raw_sec;
 		vdso_data->raw_time_nsec	= tk->tkr_raw.xtime_nsec;

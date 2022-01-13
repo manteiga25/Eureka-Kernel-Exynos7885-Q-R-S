@@ -63,7 +63,7 @@ struct vdso_data {
 	u64 xtime_clock_snsec;	/* CLOCK_REALTIME sub-ns base */
 	u32 tz_minuteswest;	/* timezone info for gettimeofday(2) */
 	u32 tz_dsttime;
-	
+
 	u32 btm_sec;		/* monotonic to boot time */
 	u32 btm_nsec;
 	/* Raw clocksource multipler */

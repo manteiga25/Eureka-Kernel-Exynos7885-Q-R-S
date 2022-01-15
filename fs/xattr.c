@@ -326,7 +326,7 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
 	void *kvalue = NULL;
 	void *vvalue = NULL;	/* If non-NULL, we used vmalloc() */
 	char kname[XATTR_NAME_MAX + 1];
-	char kvalue_onstack[256];
+	char kvalue_onstack[255];
 
 	if (flags & ~(XATTR_CREATE|XATTR_REPLACE))
 		return -EINVAL;

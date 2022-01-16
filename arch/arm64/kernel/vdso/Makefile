@@ -21,7 +21,7 @@ ccflags-y += -nostdlib -Wl,-soname=linux-vdso.so.1 \
 ccflags-y += $(call cc-option, -fno-whole-program)
 
 # Force -O2 to avoid libgcc dependencies
-CFLAGS_REMOVE_vgettimeofday.o = -pg -O3
+CFLAGS_REMOVE_vgettimeofday.o = -pg -Os
 CFLAGS_vgettimeofday.o = -O3 -fPIC
 ifneq ($(cc-name),clang)
 CFLAGS_vgettimeofday.o += -mcmodel=tiny

@@ -36,6 +36,7 @@ __asm__ (
   "tzdev_tzar_end:\n"
   ".previous\n"
 );
+
 extern char tzdev_tzar_begin[], tzdev_tzar_end[];
 
 enum iw_startup_loader_cmd_type {

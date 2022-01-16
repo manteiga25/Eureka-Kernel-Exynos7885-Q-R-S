@@ -326,5 +326,7 @@ config CMA_ALIGNMENT
 	  If unsure, leave the default value "8".
 
 endif
-
+source "drivers/base/dma_buf_test_exporter/Kconfig"
+source "drivers/base/memory_group_manager/Kconfig"
+source "drivers/base/protected_memory_allocator/Kconfig"
 endmenu

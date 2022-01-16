@@ -53,27 +53,27 @@ static unsigned int ect_find_constraint_freq(struct ect_minlock_domain *ect_doma
 		// MIF frequencies
 		int arr[10] = {2093000,2002000,1794000,1539000,1352000,1014000,845000,676000,546000,420000}; //.main
 
-		for (bm_index = 0; bm_index <= 4; bm_index++) {
+		for (bm_index = 0; bm_index <= 9; bm_index++) {
 
-			if(freq == arr[0] || freq == arr[1])
+			if(freq == arr[0])
+				ect_domain->level[i].sub_frequencies=533000;
+			if(freq == arr[1])
 				ect_domain->level[i].sub_frequencies=533000;
 			if(freq == arr[2])
 				ect_domain->level[i].sub_frequencies=533000;
 			if(freq == arr[3])
-				ect_domain->level[i].sub_frequencies=533000;
-			if(freq == arr[4])
 				ect_domain->level[i].sub_frequencies=333000;
-			if(freq == arr[5])
+			if(freq == arr[4])
 				ect_domain->level[i].sub_frequencies=267000;
-			if(freq == arr[6])
+			if(freq == arr[5])
 				ect_domain->level[i].sub_frequencies=133000;
+			if(freq == arr[6])
+				ect_domain->level[i].sub_frequencies=107000;
 			if(freq == arr[7])
 				ect_domain->level[i].sub_frequencies=107000;
 			if(freq == arr[8])
 				ect_domain->level[i].sub_frequencies=107000;
 			if(freq == arr[9])
-				ect_domain->level[i].sub_frequencies=107000;
-			if(freq == arr[10])
 				ect_domain->level[i].sub_frequencies=107000;
 		}
 
@@ -316,7 +316,7 @@ static int exynos7885_devfreq_mif_init_freq_table(struct exynos_devfreq_data *da
 	if (data->min_freq > data->max_freq)
 		data->min_freq = data->max_freq;
 
-	min_freq = (u32)cal_dfs_get_min_freq(data->dfs_id);
+	min_freq = 420000;
 	if (!min_freq) {
 		dev_err(data->dev, "failed get min frequency\n");
 		return -EINVAL;
@@ -336,7 +336,7 @@ static int exynos7885_devfreq_mif_init_freq_table(struct exynos_devfreq_data *da
 			return PTR_ERR(target_opp);
 		}
 
-		data->min_freq = dev_pm_opp_get_freq(target_opp);
+		data->min_freq = 420000;
 		rcu_read_unlock();
 	}
 

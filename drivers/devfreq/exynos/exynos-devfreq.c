@@ -99,8 +99,10 @@ static ssize_t show_exynos_devfreq_info(struct device *dev,
 			  "OPP list length  : %20u\n", data->max_state);
 	count += snprintf(buf + count, PAGE_SIZE, "freq opp table\n");
 	count += snprintf(buf + count, PAGE_SIZE, "\t  idx      freq       volt\n");
-if( data->max_freq==1794000)
-					 data->max_freq=1794000;
+if(data->max_freq==1794000)
+      data->max_freq=1794000;
+else
+      data->max_freq=2093000;
 	for (i = 0; i < data->max_state; i++)
 		count += snprintf(buf + count, PAGE_SIZE, "\t%5u %10u %10u\n",
 				  data->opp_list[i].idx, data->opp_list[i].freq,
@@ -114,8 +116,10 @@ if( data->max_freq==1794000)
 			  data->default_qos, data->devfreq_profile.initial_freq,
 			  data->min_freq, data->max_freq, data->boot_qos_timeout,data->max_state,
 			  data->use_switch_clk ? "true" : "false");
-if( data->max_freq==1794000)
-					 data->max_freq=1794000;
+if(data->max_freq==1794000)
+      data->max_freq=1794000;
+else
+      data->max_freq=2093000;
 	count += snprintf(buf + count, PAGE_SIZE, "\n<Governor data>\n");
 	count += snprintf(buf + count, PAGE_SIZE,
 			  "governor_name   : %20s\n" "use_get_dev     : %20s\n"

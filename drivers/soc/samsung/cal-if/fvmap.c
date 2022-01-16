@@ -488,6 +488,24 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 					new->table[j].rate, new->table[j].volt,
 					old->table[j].volt);
 			}
+			// for cam
+			else if (fvmap_header[i].num_of_lv == 5 && fvmap_header[i].num_of_members == 2) {
+				if (old->table[j].rate == 690000)
+						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 25000 - 8000;
+				if (old->table[j].rate == 680000)
+						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 25000;
+				if (old->table[j].rate == 670000)
+						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 25000;
+				if (old->table[j].rate == 660000)
+						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 25000;
+				if (old->table[j].rate == 650000)
+						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 24000;
+
+				new->table[j].rate = old->table[j].rate;
+				pr_info("  freq : %7d kHz, volt = %d uV (stock : %d uV) , Rainbow_CAM_VT\n",
+					new->table[j].rate, new->table[j].volt,
+					old->table[j].volt);
+			}
 			else {
 				new->table[j].rate = old->table[j].rate;
 				new->table[j].volt = old->table[j].volt;

@@ -117,16 +117,25 @@ bool osq_lock(struct optimistic_spin_queue *lock)
 	 */
 	smp_wmb();
 
+	WRITE_ONCE(prev->next, node);
+
+	/*
+	 * Normally @prev is untouchable after the above store; because at that
+	 * moment unlock can proceed and wipe the node element from stack.
+	 *
+	 * However, since our nodes are static per-cpu storage, we're
+	 * guaranteed their existence -- this allows us to apply
+	 * cmpxchg in an attempt to undo our queueing.
+	 */
+
 	while (!READ_ONCE(node->locked)) {
 		/*
 		 * If we need to reschedule bail... so we can block.
-		 * Use vcpu_is_preempted() to avoid waiting for a preempted
-		 * lock holder:
 		 */
-		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
+		if (need_resched())
 			goto unqueue;
 
-		cpu_relax();
+		cpu_relax_lowlatency();
 	}
 	return true;
 

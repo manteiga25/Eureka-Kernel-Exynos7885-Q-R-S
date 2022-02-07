@@ -3,7 +3,7 @@
  * Copyright (c) 2013-2021, Arm Limited.
  *
  * Adapted from the original at:
- * https://github.com/ARM-software/optimized-routines/blob/master/string/aarch64/strncmp.S
+ * https://github.com/ARM-software/optimized-routines/blob/e823e3abf5f89ecb/string/aarch64/strncmp.S
  */
 
 #include <linux/linkage.h>
@@ -165,7 +165,7 @@ L(mutual_align):
 	lsl	tmp2, tmp2, tmp3	/* Shift (count & 63).  */
 #else
 	/* Little-endian.  Early bytes are at LSB.  */
-lsr	tmp2, tmp2, tmp3	/* Shift (count & 63).  */
+	lsr	tmp2, tmp2, tmp3	/* Shift (count & 63).  */
 #endif
 	and	tmp3, limit_wd, #7
 	lsr	limit_wd, limit_wd, #3
@@ -194,7 +194,7 @@ L(byte_loop):
 L(done):
 	sub	result, data1, data2
 	ret
-/* Align the SRC1 to a dword by doing a bytewise compare and then do
+	/* Align the SRC1 to a dword by doing a bytewise compare and then do
 	   the dword loop.  */
 L(try_misaligned_words):
 	lsr	limit_wd, limit, #3
@@ -205,7 +205,7 @@ L(try_misaligned_words):
 	sub	limit, limit, count
 	lsr	limit_wd, limit, #3
 
-	L(page_end_loop):
+L(page_end_loop):
 	ldrb	data1w, [src1], #1
 	ldrb	data2w, [src2], #1
 	cmp	data1w, #1
@@ -256,5 +256,5 @@ L(done_loop):
 L(ret0):
 	mov	result, #0
 	ret
-	
+
 SYM_FUNC_END_PI(strncmp)

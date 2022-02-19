@@ -698,6 +698,38 @@ else
 KBUILD_CFLAGS   += -O3
 endif
 
+# Enable Clang Polly optimizations
+KBUILD_CFLAGS	+= -mllvm -polly \
+                   -mllvm -polly-use-runtime-alias-checks \
+                   -mllvm -polly-detect-track-failures \
+                   -mllvm -polly-optimized-scops \
+                   -mllvm -polly-import-jscop-dir \
+                   -mllvm -polly-run-export-jscop \
+                   -mllvm -polly-use-llvm-names \
+                   -mllvm -polly-omp-backend=LLVM \
+                   -mllvm -polly-delicm-max-ops=0 \
+                   -mllvm -polly-2nd-level-tiling \
+                   -mllvm -polly-position=early \
+                   -mllvm -polly-position=before-vectorizer \
+                   -mllvm -polly-num-threads=8 \
+                   -mllvm -polly-scheduling=dynamic \
+                   -mllvm -polly-scheduling-chunksize=1 \
+                   -mllvm -polly-vectorizer=polly \
+                   -mllvm -polly-opt-fusion=max \
+                   -mllvm -polly-opt-maximize-bands=yes \
+                   -mllvm -polly-ast-use-context \
+                   -mllvm -polly-detect-keep-going \
+		   -mllvm -polly-invariant-load-hoisting \
+		   -mllvm -polly-run-dce \
+		   -mllvm -polly-run-inliner \
+		   -mllvm -polly-vectorizer=stripmine \
+		   -mllvm -polly-opt-simplify-deps=no \
+		   -mllvm -polly-rtc-max-arrays-per-group=40 \
+		   -mllvm -polly-parallel \
+			 -mllvm -polly-ast-detect-parallel
+                          #-mllvm -polly-no-early-exit
+endif                          
+
 ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS	+= -Werror
 endif

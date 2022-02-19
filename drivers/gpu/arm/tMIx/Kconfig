@@ -103,3 +103,4 @@ endif
 if MALI_TMIX_R26P0
 source "drivers/gpu/arm/b_r26p0/Kconfig"
 endif
+

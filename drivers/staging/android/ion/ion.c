@@ -913,6 +913,9 @@ static void *ion_buffer_kmap_get(struct ion_buffer *buffer)
 	void *vaddr;
 
 	if (buffer->kmap_cnt) {
+		if (buffer->kmap_cnt == INT_MAX)
+			return ERR_PTR(-EOVERFLOW);
+
 		buffer->kmap_cnt++;
 		return buffer->vaddr;
 	}
@@ -934,6 +937,9 @@ static void *ion_handle_kmap_get(struct ion_handle *handle)
 	void *vaddr;
 
 	if (handle->kmap_cnt) {
+		if (handle->kmap_cnt == INT_MAX)
+			return ERR_PTR(-EOVERFLOW);
+
 		handle->kmap_cnt++;
 		return buffer->vaddr;
 	}
@@ -2622,6 +2628,9 @@ dma_addr_t ion_iovmm_map(struct dma_buf_attachment *attachment,
 	if (IS_ENABLED(CONFIG_EXYNOS_CONTENT_PATH_PROTECTION) &&
 			buffer->flags & ION_FLAG_PROTECTED) {
 		struct ion_buffer_info *info = buffer->priv_virt;
+
+		if (!info)
+			return -EINVAL;
 
 		if (info->prot_desc.dma_addr)
 			return info->prot_desc.dma_addr;

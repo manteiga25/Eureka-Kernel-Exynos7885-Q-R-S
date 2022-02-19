@@ -1,7 +1,6 @@
 #
 # EXYNOS Soc drivers
 #
-
 menuconfig SOC_SAMSUNG
 	bool "SAMSUNG SOC drivers support"
 

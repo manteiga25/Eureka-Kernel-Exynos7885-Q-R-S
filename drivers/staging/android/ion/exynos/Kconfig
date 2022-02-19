@@ -5,4 +5,4 @@ config ION_EXYNOS_OF
 
 config HPA_EXTRA
 	bool "add HPA extra heap"
-	default y
+	default n

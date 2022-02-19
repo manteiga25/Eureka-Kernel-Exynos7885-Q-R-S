@@ -1509,7 +1509,6 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
 		goto bad;
 	return 0;
 bad:
-	panic("SELinux:Failed to type read");
 	type_destroy(key, typdatum, NULL);
 	return rc;
 }
@@ -2522,7 +2521,6 @@ int policydb_read(struct policydb *p, void *fp)
 out:
 	return rc;
 bad:
-	panic("SELinux:Failed to load policy");
 	policydb_destroy(p);
 	goto out;
 }

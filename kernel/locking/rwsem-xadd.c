@@ -376,7 +376,7 @@ static noinline bool rwsem_spin_on_owner(struct rw_semaphore *sem)
 			return false;
 		}
 
-		cpu_relax();
+		cpu_relax_lowlatency();
 	}
 	rcu_read_unlock();
 out:
@@ -431,7 +431,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
 		 * memory barriers as we'll eventually observe the right
 		 * values at the cost of a few extra spins.
 		 */
-		cpu_relax();
+		cpu_relax_lowlatency();
 	}
 	osq_unlock(&sem->osq);
 done:

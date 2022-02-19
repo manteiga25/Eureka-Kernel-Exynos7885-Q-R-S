@@ -261,7 +261,7 @@ static void check_percent_margin(struct rate_volt_header *head, unsigned int num
 
 static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base)
 {
-	volatile struct fvmap_header *fvmap_header, *header;
+	struct fvmap_header *fvmap_header, *header;
 	struct rate_volt_header *old, *new;
 	struct clocks *clks;
 	struct pll_header *plls;
@@ -485,24 +485,6 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 
 				new->table[j].rate = old->table[j].rate;
 				pr_info("  freq : %7d kHz, volt = %d uV (stock : %d uV) , Chatur_FSYS_VT\n",
-					new->table[j].rate, new->table[j].volt,
-					old->table[j].volt);
-			}
-			// for cam
-			else if (fvmap_header[i].num_of_lv == 5 && fvmap_header[i].num_of_members == 2) {
-				if (old->table[j].rate == 690000)
-						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 25000 - 8000;
-				if (old->table[j].rate == 680000)
-						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 25000;
-				if (old->table[j].rate == 670000)
-						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 25000;
-				if (old->table[j].rate == 660000)
-						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 25000;
-				if (old->table[j].rate == 650000)
-						new->table[j].volt = old->table[j].volt - 25000 - 25000 - 24000;
-
-				new->table[j].rate = old->table[j].rate;
-				pr_info("  freq : %7d kHz, volt = %d uV (stock : %d uV) , Rainbow_CAM_VT\n",
 					new->table[j].rate, new->table[j].volt,
 					old->table[j].volt);
 			}

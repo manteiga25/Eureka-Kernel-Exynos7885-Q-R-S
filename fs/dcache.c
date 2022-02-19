@@ -2924,7 +2924,12 @@ static int prepend_name(char **buffer, int *buflen, struct qstr *name)
 		return -ENAMETOOLONG;
 	p = *buffer -= dlen + 1;
 	*p++ = '/';
-	memcpy(p, dname, dlen);
+	while (dlen--) {
+		char c = *dname++;
+		if (!c)
+			break;
+		*p++ = c;
+	}
 	return 0;
 }
 

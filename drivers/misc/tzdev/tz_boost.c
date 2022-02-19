@@ -13,7 +13,6 @@
 
 #include <linux/mutex.h>
 #include <linux/pm_qos.h>
-#include <linux/devfreq_boost.h>
 
 #include "tz_boost.h"
 #include "tz_hotplug.h"
@@ -41,7 +40,6 @@ void tz_boost_enable(void)
 
 	pm_qos_add_request(&tz_boost_qos, TZ_BOOST_CPU_FREQ_MIN,
 				TZ_BOOST_CPU_FREQ_MAX_DEFAULT_VALUE);
-                         devfreq_boost_kick(DEVFREQ_EXYNOS_MIF);
 
 	tz_boost_is_active = 1;
 	mutex_unlock(&tz_boost_lock);

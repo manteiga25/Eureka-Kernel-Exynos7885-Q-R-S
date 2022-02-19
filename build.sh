@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sudo bash
 #
-# Custom build script for Eureka kernels by Chatur27 and Gabriel260 @Github - 2020
+# Custom build script for Eureka kernels by Chatur27, Gabriel2392 and roynatech2544 @Github - 2022
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,20 +26,17 @@ DTBO_DIR=./arch/arm64/boot/dts/exynos/dtbo
 PROJECT_NAME="Eureka Kernel"
 CORES=$(nproc --all)
 SELINUX_STATUS=""
-REV=7.5
-RR=0
-PCUSER=chatur
-USER=Chatur
-ZIPNAME=Eureka_Rx.x_Axxx_xxxx_x_x.zip
-DEFAULT_NAME=Eureka_Rx.x_Axxx_P/Q/R
+ONEUI3=0
 GCC_ARM64_FILE=aarch64-linux-gnu-
 GCC_ARM32_FILE=arm-linux-gnueabi-
-CLANGC="nope"
+
+# Export Telegram variables
+export CHAT_ID=-0000000000000
+export BOT_TOKEN=0
 
 # Export commands
-export KBUILD_BUILD_USER=$USER
+export KBUILD_BUILD_USER=Eureka
 export KBUILD_BUILD_HOST=Eureka.org
-export VERSION=$DEFAULT_NAME
 export ARCH=arm64
 export CROSS_COMPILE=$(pwd)/toolchain/bin/$GCC_ARM64_FILE
 export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
@@ -48,100 +45,69 @@ export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
 DATE=$(date +"%m-%d-%y")
 BUILD_START=$(date +"%s")
 
+######################### Colours ############################
+
+ON_BLUE=`echo -e "\033[44m"`
+RED=`echo -e "\033[1;31m"`
+BLUE=`echo -e "\033[1;34m"`
+GREEN=`echo -e "\033[1;32m"`
+STD=`echo -e "\033[0m"`		# Clear colour
+
+
 ####################### Devices List #########################
 
 SM_A105X() {
-
-	DEVICE_Axxx=A105
-	DEFCONFIG=exynos7885-a10_"$SELINUX_STATUS"defconfig
+	CODENAME=A105
+	DEFCONFIG=exynos7885-a10_defconfig
 }
 
 SM_A205X() {
-	DEVICE_Axxx=A205
-	DEFCONFIG=exynos7885-a20_"$SELINUX_STATUS"defconfig
+	CODENAME=A205
+	DEFCONFIG=exynos7885-a20_defconfig
 }
 
 SM_A202X() {
-	DEVICE_Axxx=A202
-	DEFCONFIG=exynos7885-a20e_"$SELINUX_STATUS"defconfig
+	CODENAME=A202
+	DEFCONFIG=exynos7885-a20e_defconfig
 }
 
 SM_A305X() {
-	DEVICE_Axxx=A305
-	DEFCONFIG=exynos7885-a30_"$SELINUX_STATUS"defconfig
+	CODENAME=A305
+	DEFCONFIG=exynos7885-a30_defconfig
 }
 
 SM_A307X() {
-	DEVICE_Axxx=A307
-	DEFCONFIG=exynos7885-a30s_"$SELINUX_STATUS"defconfig
+	CODENAME=A307
+	DEFCONFIG=exynos7885-a30s_defconfig
 }
 
 SM_A405X() {
-	DEVICE_Axxx=A405
-	DEFCONFIG=exynos7885-a40_"$SELINUX_STATUS"defconfig
+	CODENAME=A405
+	DEFCONFIG=exynos7885-a40_defconfig
+}
+
+SM_A3050() {
+	CODENAME=A3050
+	DEFCONFIG=exynos7885-a40s_defconfig
 }
 
 SM_M205X() {
-	DEVICE_Axxx=M205
+	CODENAME=M205
 	DEFCONFIG=exynos7885-m20_"$SELINUX_STATUS"defconfig
 }
 
-################################################################
 
 ######################## Android OS list #######################
 
-androidp="Android 9 (Pie)"
-androidqr="Android 10 (Q) 11 (R)"
-androidr="Android 11 (oneui 3)"
+android_qrs="Support for OneUI 2, AOSP 10 (Q), 11 (R) & 12 (S)"
+android_oneui3="Support for OneUI 3 or GSI using R vendor"
 
-################################################################
 
 ################### Executable functions #######################
-CLEAN_SOURCE() {
-	echo "*****************************************************"
-	echo " "
-	echo "              Cleaning kernel source"
-	echo " "
-	echo "*****************************************************"
-
-	if [ -e "arch/arm64/boot/dtbo.img" ]; then
-		{
-			rm $DTBO_DIR/*.dtbo
-		}
-	fi
-
-	make clean
-	CLEAN_SUCCESS=$?
-	if [ $CLEAN_SUCCESS != 0 ]; then
-		echo " Error: make clean failed"
-		exit
-	fi
-
-	make mrproper
-	MRPROPER_SUCCESS=$?
-	if [ $MRPROPER_SUCCESS != 0 ]; then
-		echo " Error: make mrproper failed"
-		exit
-	fi
-
-	if [ -e "kernel_zip/anykernel/Image" ]; then
-		{
-			rm $DTBO_DIR/*.dtbo
-			rm -rf kernel_zip/anykernel/Image
-			rm -rf kernel_zip/anykernel/dtbo.img
-		}
-	fi
-
-	ADDITIONAL_CLEANUP
-	sleep 1
-}
 
 CLANG_CLEAN() {
-	echo "*****************************************************"
+	echo " ${ON_BLUE}Cleaning kernel source ${STD}"
 	echo " "
-	echo "              Cleaning kernel source"
-	echo " "
-	echo "*****************************************************"
 
 	rm -rf out
 	if [ -e "kernel_zip/anykernel/Image" ]; then
@@ -155,86 +121,76 @@ CLANG_CLEAN() {
 		}
 	fi
 
-	ADDITIONAL_CLEANUP
-}
-
-ADDITIONAL_CLEANUP() {
-	if [ -e "drivers/usb/gadget/.oneui_mtp" ]; then
-		rm -rf drivers/usb/gadget/.oneui_mtp
-	fi
-
-	if [ -e "drivers/usb/gadget/.gsi_mtp" ]; then
-		rm -rf drivers/usb/gadget/.gsi_mtp
-	fi
-
-	if [ -e "security/selinux/.permissive" ]; then
-		rm -rf security/selinux/.permissive
-	fi
-
-	if [ -e "security/selinux/.enforcing" ]; then
-		rm -rf security/selinux/.enforcing
+	if [ "${BUILD_NO}" == "" ]; then
+		if [ -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
+			rm drivers/media/platform/exynos/Kconfig
+			mv drivers/media/platform/exynos/Kconfig.bak drivers/media/platform/exynos/Kconfig
+		fi
+		if [ -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
+			rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+			mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		fi
 	fi
 }
 
-BUILD_KERNEL() {
-	echo "*****************************************************"
-	echo "      Building kernel for $DEVICE_Axxx android $ANDROID"
-	export ANDROID_MAJOR_VERSION=$ANDROID
-	export PLATFORM_VERSION=$AND_VER
-	export LOCALVERSION=-$VERSION
-	make $DEFCONFIG
-	make -j$CORES
-	sleep 1
-}
-
-AUTO_TOOLCHAIN() {
-	if [ -e "toolchain/linaro6.5" ]; then
+TOOLCHAIN() {
+	if [ -e "toolchain/bin/clang-14" ]; then
 		{
 			echo " "
-			echo "Using Linaro v6.5.0 toolchain"
+			echo " ${GREEN}Using Clang 14 as compiler ${STD}"
 			echo " "
 			GCC_ARM64_FILE=aarch64-linux-gnu-
 			GCC_ARM32_FILE=arm-linux-gnueabi-
-			export CROSS_COMPILE=$(pwd)/toolchain/bin/$GCC_ARM64_FILE
-			export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
+			echo " "
 		}
-	elif [ -e "toolchain/gcc4.9" ]; then
+	elif [ -e "toolchain/bin/clang-13" ]; then
 		{
 			echo " "
-			echo "Using Gcc v4.9 toolchain"
-			echo " "
-			GCC_ARM64_FILE=aarch64-linux-android-
-			GCC_ARM32_FILE=arm-linux-gnueabi-
-			export CROSS_COMPILE=$(pwd)/toolchain/bin/$GCC_ARM64_FILE
-			export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
-		}
-	elif [ -e "toolchain/pro_clang13" ]; then
-		{
-			echo " "
-			echo "Using Proton Clang 13 as main compiler"
+			echo " ${GREEN}Using Clang 13 as compiler ${STD}"
 			echo " "
 			GCC_ARM64_FILE=aarch64-linux-gnu-
 			GCC_ARM32_FILE=arm-linux-gnueabi-
-			export CLANGC="OK"
 			echo " "
 		}
 	else
-		echo " "
-		echo "WARNING: Toolchain directory couldn't be found"
-		echo " "
-		sleep 2
-		exit
+		{
+			echo " "
+			echo " ${RED}WARNING: Correct toolchain could not be found! Downloading latest Clang 14 toolchain. ${STD}"
+			echo " "
+			rm -rf toolchain
+        	        #git clone --depth=1 https://github.com/kdrag0n/proton-clang.git toolchain/
+			git clone --depth=1 https://github.com/vijaymalav564/vortex-clang.git toolchain/
+			sleep 1
+		}
 	fi
 }
 
-CLANG() {
+DTB_BUILD() {
 	export LOCALVERSION=-$VERSION
 	export PLATFORM_VERSION=$AND_VER
-	make O=out ARCH=arm64 ANDROID_MAJOR_VERSION=$ANDROID $DEFCONFIG
+	echo "${BLUE}"
+	make O=out ARCH=arm64 ANDROID_MAJOR_VERSION=$ANDROID $DEFCONFIG > /dev/null
+	PATH="$KERNEL_DIR/toolchain/bin:$KERNEL_DIR/toolchain/bin:${PATH}" \
+		make dtb.img -j$CORES O=out \
+		ARCH=arm64 \
+		ANDROID_MAJOR_VERSION=$ANDROID \
+		CC=clang \
+		LD_LIBRARY_PATH="$KERNEL_DIR/toolchain/lib:$LD_LIBRARY_PATH" \
+		CLANG_TRIPLE=aarch64-linux-gnu- \
+		CROSS_COMPILE=$GCC_ARM64_FILE \
+		CROSS_COMPILE_ARM32=$GCC_ARM32_FILE
+	 echo "${STD}"
+}
+
+CLANG_BUILD() {
+	export LOCALVERSION=-$VERSION
+	export PLATFORM_VERSION=$AND_VER
+	make O=out ARCH=arm64 ANDROID_MAJOR_VERSION=$ANDROID $DEFCONFIG > /dev/null
 	PATH="$KERNEL_DIR/toolchain/bin:$KERNEL_DIR/toolchain/bin:${PATH}" \
 		make -j$CORES O=out \
 		ARCH=arm64 \
 		ANDROID_MAJOR_VERSION=$ANDROID \
+		LLVM_DIS=llvm-dis AR=llvm-ar NM=llvm-nm LD=ld.lld OBJDUMP=llvm-objdump STRIP=llvm-strip \
 		CC=clang \
 		LD_LIBRARY_PATH="$KERNEL_DIR/toolchain/lib:$LD_LIBRARY_PATH" \
 		CLANG_TRIPLE=aarch64-linux-gnu- \
@@ -244,158 +200,507 @@ CLANG() {
 
 PREBUILT_DTBO() {
 	# Copy prebuilt dtbo.img to anykernel directory
-	if [ "${DEVICE_Axxx}" == "A105" ]; then
+	if [ "${CODENAME}" == "A105" ]; then
 		cp -f kernel_zip/dtbo/a10/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A205" ]; then
+	elif [ "${CODENAME}" == "A205" ]; then
 		cp -f kernel_zip/dtbo/a20/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A202" ]; then
+	elif [ "${CODENAME}" == "A202" ]; then
 		cp -f kernel_zip/dtbo/a20e/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A305" ]; then
+	elif [ "${CODENAME}" == "A305" ]; then
 		cp -f kernel_zip/dtbo/a30/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A307" ]; then
+	elif [ "${CODENAME}" == "A307" ]; then
 		cp -f kernel_zip/dtbo/a30s/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A405" ]; then
+	elif [ "${CODENAME}" == "A405" ]; then
 		cp -f kernel_zip/dtbo/a40/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "M205" ]; then
-		cp -f kernel_zip/dtbo/m20/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${CODENAME}" == "A3050" ]; then
+		if [ -e "kernel_zip/dtbo/a3050/dtbo.img" ]; then
+			cp -f kernel_zip/dtbo/a3050/dtbo.img kernel_zip/anykernel/dtbo.img
+		fi
+	elif [ "${CODENAME}" == "M205" ]; then
+		if [ -e "kernel_zip/dtbo/m20/dtbo.img" ]; then
+			cp -f kernel_zip/dtbo/m20/dtbo.img kernel_zip/anykernel/dtbo.img
+		fi
 	fi
+}
+
+DTB_GENERATOR() {
+	# DTB is soc specific and not device specific. So, use only A10 defconfig for generating all DTBs.
+	if [ "${BUILD_NO}" == "1" ]; then
+		ANDROID=r
+		SM_A105X
+		cp arch/arm64/boot/dts/exynos/dtb/exynos7885.dts arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak
+		cp arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi.bak
+		LINE="$((grep -n 'sel_boot_state' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
+		sed -i $LINE's/.*/		sel_boot_state = <'$1'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		LINE="$((grep -n 'eureka_kernel_variant' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
+		sed -i $LINE's/.*/			eureka_kernel_variant = <'$2'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	        if [ "${CUSTOM_DTB}" == "1" ]; then
+	            # Little cores
+	            LINE="$((grep -n 'eureka_min-freq' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | head -1)"
+	            sed -i $LINE's/.*/			eureka_min-freq = <'$3'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            LINE="$((grep -n 'eureka_max-freq' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | head -1)"
+	            sed -i $LINE's/.*/			eureka_max-freq = <'$4'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            LINE="$((grep -n 'eureka_pm_qos-booting' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | head -1)"
+	            sed -i $LINE's/.*/			eureka_pm_qos-booting = <'$5'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            # Big cores
+	            LINE="$((grep -n 'eureka_min-freq' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | tail -1)"
+	            sed -i $LINE's/.*/			eureka_min-freq = <'$6'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            LINE="$((grep -n 'eureka_max-freq' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | tail -1)"
+	            sed -i $LINE's/.*/			eureka_max-freq = <'$7'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            LINE="$((grep -n 'eureka_pm_qos-booting' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | tail -1)"
+	            sed -i $LINE's/.*/			eureka_pm_qos-booting = <'$8'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            # GPU
+	            LINE="$((grep -n 'eureka_gpu_max_clock' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi) | (gawk '{print $1}' FS=":"))"
+	            sed -i $LINE's/.*/		eureka_gpu_max_clock = <'$9'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+	            LINE="$((grep -n 'eureka_gpu_highspeed_clock' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi) | (gawk '{print $1}' FS=":"))"
+	            sed -i $LINE's/.*/		eureka_gpu_highspeed_clock = <'${10}'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+	            #LINE="$((grep -n 'eureka_gpu_temp_throttling' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi) | (gawk '{print $1}' FS=":"))"
+	            #sed -i $LINE's/.*/		eureka_gpu_temp_throttling = <'${11}'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+	        fi
+		DTB_BUILD
+		if [ ! -e "kernel_zip/aroma/dtb/aosp/enf/default" ]; then
+			mkdir kernel_zip/aroma/dtb/aosp/enf/default -p
+		fi
+		if [ ! -e "kernel_zip/aroma/dtb/aosp/perm/default" ]; then
+			mkdir kernel_zip/aroma/dtb/aosp/perm/default -p
+		fi
+		if [ ! -e "kernel_zip/aroma/dtb/oneui2/enf/default" ]; then
+			mkdir kernel_zip/aroma/dtb/oneui2/enf/default -p
+		fi
+		if [ ! -e "kernel_zip/aroma/dtb/oneui2/perm/default" ]; then
+			mkdir kernel_zip/aroma/dtb/oneui2/perm/default -p
+		fi
+		if [ ! -e "kernel_zip/aroma/dtb/oneui3/enf/default" ]; then
+			mkdir kernel_zip/aroma/dtb/oneui3/enf/default -p
+		fi
+		if [ ! -e "kernel_zip/aroma/dtb/oneui3/perm/default" ]; then
+			mkdir kernel_zip/aroma/dtb/oneui3/perm/default -p
+		fi
+
+		if [ "$1" == "0" ]; then
+			if [ "$2" == "0" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/default/
+                fi
+            elif [ "$2" == "2" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/enf/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/enf/default/
+                fi
+            elif [ "$2" == "3" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/enf/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/enf/default/
+                fi
+			fi
+		elif [ "$1" == "1" ]; then
+			if [ "$2" == "0" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/default/
+                fi
+            elif [ "$2" == "2" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/perm/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/perm/default/
+                fi
+            elif [ "$2" == "3" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/perm/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/perm/default/
+                fi
+            fi
+		fi
+
+		chown -R $username:$username kernel_zip/aroma/dtb
+		chmod -R 0755 kernel_zip/aroma/dtb
+		rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		rm arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+		mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		mv arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi.bak arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+		CLANG_CLEAN
+	else
+		clear
+		TOOLCHAIN
+		clear
+		CLANG_CLEAN
+		ANDROID=r
+		SM_A105X
+		echo " ${GREEN}Defconfig loaded: $DEFCONFIG ${STD}"
+		echo " ${BLUE}"
+		DTB_BUILD
+		echo " ${STD}"
+		if [ ! -e "kernel_zip/dtb" ]; then
+			mkdir kernel_zip/dtb
+        	chmod 0777 kernel_zip/dtb
+		fi
+		cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/dtb/
+	fi
+}
+
+CUSTOM_DTB() {
+        export BUILD_NO=1
+        export CUSTOM_DTB=1
+
+        # selinux | os | little_min | little_max | little_qos | big_min | big_max | big_qos | gpu_max | gpu_highspeed | gpu_throttle | dtb_folder
+        DTB_GENERATOR 0 0 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 0 0 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 0 0 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 0 0 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 0 0 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 0 0 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 0 0 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 0 0 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 0 0 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 0 0 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 0 2 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 0 2 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 0 2 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 0 2 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 0 2 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 0 2 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 0 2 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 0 2 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 0 2 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 0 2 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 0 3 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 0 3 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 0 3 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 0 3 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 0 3 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 0 3 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 0 3 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 0 3 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 0 3 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 0 3 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 1 0 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 1 0 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 1 0 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 1 0 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 1 0 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 1 0 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 1 0 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 1 0 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 1 0 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 1 0 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 1 2 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 1 2 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 1 2 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 1 2 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 1 2 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 1 2 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 1 2 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 1 2 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 1 2 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 1 2 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 1 3 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 1 3 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 1 3 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 1 3 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 1 3 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 1 3 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 1 3 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 1 3 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 1 3 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 1 3 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
 }
 
 ZIPPIFY() {
 	# Make Eureka flashable zip
-
 	if [ -e "arch/$ARCH/boot/Image" ]; then
 		{
-			echo -e "*****************************************************"
-			echo -e "                                                     "
-			echo -e "       Building Eureka anykernel flashable zip       "
-			echo -e "                                                     "
-			echo -e "*****************************************************"
+			echo -e " "
+			echo -e " ${ON_BLUE}Building Eureka anykernel flashable zip ${STD}"
+			echo -e " "
 
-			# Copy Image and dtbo.img to anykernel directory
+			# Copy Image, dtb.img and dtbo.img to anykernel directory
 			cp -f arch/$ARCH/boot/Image kernel_zip/anykernel/Image
-			cp -f arch/$ARCH/boot/dtb.img kernel_zip/anykernel/dtb.img
+			if [ -e "arch/$ARCH/boot/dtb.img" ]; then
+				if [ "${CODENAME}" == "A3050" ]; then
+					# Don't copy dtb to anykernel directory because it has never been tested.
+					cp -f arch/$ARCH/boot/dtb.img kernel_zip/a40s_dtb.img
+				elif [ "${CODENAME}" == "M205" ]; then
+					# Don't copy dtb to anykernel directory because it has never been tested.
+					cp -f arch/$ARCH/boot/dtb.img kernel_zip/m20_dtb.img
+				else
+					cp -f arch/$ARCH/boot/dtb.img kernel_zip/anykernel/dtb.img
+				fi
+			fi
+
+			# Comment & uncomment here to use DTBO.img from source
 			PREBUILT_DTBO
 			#cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
 
 			# Go to anykernel directory
 			cd kernel_zip/anykernel
-			zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtb.img dtbo.img version
+
+			if [ -e "dtb.img" ]; then
+				{
+					if [ -e "dtbo.img" ]; then
+						{
+							zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtb.img dtbo.img version > /dev/null
+						}
+					else
+						{
+							mv anykernel.sh anykernel.sh.bak
+							sed '58,61d' anykernel.sh.bak > anykernel.sh
+							zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtb.img version > /dev/null
+							rm -f anykernel.sh
+							mv anykernel.sh.bak anykernel.sh
+							chmod a+x anykernel.sh
+						}
+					fi
+				}
+			else
+				{
+					mv anykernel.sh anykernel.sh.bak
+					sed '53,61d' anykernel.sh.bak > anykernel.sh
+					zip -r9 $ZIPNAME META-INF tools anykernel.sh Image version > /dev/null
+					rm -f anykernel.sh
+					mv anykernel.sh.bak anykernel.sh
+				}
+			fi
+
 			chmod 0777 $ZIPNAME
-			# Change back into kernel source directory
-			cd ..
-			sleep 1
-			cd ..
+
+			if [ "${BUILD_NO}" != "" ]; then
+				# Prepare kernel zip & update files for AROMA too
+				cp -f tools/changelog.txt ../aroma/META-INF/com/google/android/aroma/
+				mv tools/espectrum.zip ./
+				mv anykernel.sh anykernel.sh.bak
+				sed '53,79d' anykernel.sh.bak > anykernel.sh
+
+				if [ "$ONEUI3" == "1" ]; then
+					SPECIAL_ZIP_NAME=$CODENAME"_oneui3.zip"
+				else
+					SPECIAL_ZIP_NAME=$CODENAME"_qrs.zip"
+				fi
+				zip -r9 $SPECIAL_ZIP_NAME META-INF tools anykernel.sh Image > /dev/null
+				chmod 0777 $SPECIAL_ZIP_NAME
+				mv $SPECIAL_ZIP_NAME ../aroma/
+
+				mv espectrum.zip tools/
+				rm -f anykernel.sh
+				mv anykernel.sh.bak anykernel.sh
+				chmod a+x anykernel.sh
+			fi
+			# Go back into kernel source directory
+			cd ../..
 			sleep 1
 		}
 	fi
 }
 
+AROMA() {
+	# Make Eureka AROMA Installer zip
+	echo -e " "
+	echo -e " ${ON_BLUE}Building Eureka AROMA flashable zip ${STD}"
+	echo -e " "
+	cd kernel_zip
+
+	# Copy dtbo from anykernel folder
+	if [ ! -e "aroma/dtbo" ]; then
+		mkdir aroma/dtbo
+		chmod 0777 aroma/dtbo
+	fi
+	cp -f anykernel/dtbo.img aroma/dtbo/
+
+	cd aroma
+	mv $CODENAME"_oneui3.zip" kernel/oneui3.zip
+	mv $CODENAME"_qrs.zip" kernel/qrs.zip
+	zip -r9 $AROMAZIPNAME META-INF dtb dtbo kernel spectrum tools > /dev/null
+	rm -f kernel/oneui3.zip
+	rm -f kernel/qrs.zip
+	rm -rf dtbo
+	cd ../..
+}
+
 PROCESSES() {
 	# Allow user to choose how many cores to be taken by compiler
-	echo "Your system has $CORES cores."
-	read -p "Please enter how many cores to be used by compiler (Leave blank to use all cores) : " cores
+	echo " ${ON_BLUE}Your system has $CORES cores. ${STD}"
+	echo " "
+
+	if [ "${BUILD_NO}" != "" ]; then
+		export cores=""
+	else
+		read -p " ${GREEN}Please enter how many cores to be used by compiler (Leave blank to use all cores) : " cores
+	fi
+
+
 	if [ "${cores}" == "" ]; then
 		echo " "
-		echo "Using all $CORES cores for compilation"
+		echo " Using all $CORES cores for compilation. ${STD}"
 		sleep 1
 	else
 		echo " "
-		echo "Using $cores cores for compilation "
+		echo " Using $cores cores for compilation. ${STD}"
 		CORES=$cores
 		sleep 1
 	fi
 }
 
 ENTER_VERSION() {
-	# Enter kernel revision for this build.
-	read -p "Please type kernel version without R (E.g: 6.5) : " rev
+	# Enter kernel version for this build.
+	REV="$(grep -Po 'Eureka R\K[^*]+' kernel_zip/anykernel/version)"
+	echo " ${ON_BLUE}Current Kernel Version: $REV ${STD}"
+	echo " "
+	read -p " ${GREEN}Please type kernel version without 'R' (E.g: $REV) : " rev
 	if [ "${rev}" == "" ]; then
+		REV="$REV-$((RANDOM % 999))"
 		echo " "
-		echo "     Using '$REV' as version"
+		echo " Using '$REV' as test version ${STD}"
 	else
 		REV=$rev
 		echo " "
-		echo "     Version = $REV"
+		echo " Version = $REV ${STD}"
 	fi
 	sleep 1
 }
 
 USER() {
 	# Setup KBUILD_BUILD_USER
-	echo " Current build username is $USER"
+	username="$(who | sed 's/  .*//' | head -1)"
+	USER=${username^}
+	echo " ${ON_BLUE}Current build_user is $USER ${STD}"
 	echo " "
-	read -p " Please type build_user (E.g: Chatur) : " user
+
+	if [ "${BUILD_NO}" != "" ]; then
+		export user=""
+	else
+		read -p " ${GREEN}Please define build_user (E.g: $USER) : " user
+	fi
+
 	if [ "${user}" == "" ]; then
+		export KBUILD_BUILD_USER=$USER
 		echo " "
-		echo "     Using '$USER' as Username"
+		echo " Using '$USER' as build_user ${STD}"
 	else
 		export KBUILD_BUILD_USER=$user
 		USER=$user
 		echo " "
-		echo "     build_user = $user"
+		echo " build_user = $USER ${STD}"
 	fi
-	sleep 1
+	sleep 2
 }
 
 RENAME() {
 	# Give proper name to kernel and zip name
-	if [ "$RR" == "1" ]; then
-		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"OneUI3/4"
-		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"OneUI3.zip"
+	if [ "$ONEUI3" == "1" ]; then
+		VERSION="Eureka_R"$REV"_"$CODENAME"_Q_R_S"
+		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Q_R_S.zip"
 	else
-		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q/R/S"
-		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q_R_S.zip"
+		VERSION="Eureka_R"$REV"_"$CODENAME"_Legacy_Q/R/S"
+		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Legacy_Q_R_S.zip"
 	fi
+	AROMAZIPNAME="Eureka_R"$REV"_"$CODENAME"_AROMA-"$SCHEDULER".zip"
 }
 
 SELINUX() {
-	# setup selinux for differents firmwares
-	echo -e "***************************************************************"
-	echo "             Select which version you wish to build               "
-	echo -e "***************************************************************"
-	echo " Available versions:"
-	echo " "
-	echo "  1. Build Eureka with ENFORCING SElinux"
-	echo " "
-	echo "  2. Build Eureka with PERMISSIVE SElinux"
-	echo " "
-	echo "  3. Leave empty to exit this script"
-	echo " "
-	echo " "
-	read -n 1 -p "Select your choice: " -s choice
-	case ${choice} in
-	1)
-		{
-			export SELINUX_B=enforcing
-			export SELINUX_STATUS="$SELINUX_B"_
-		}
-		;;
-	2)
-		{
-			export SELINUX_B=permissive
-			export SELINUX_STATUS="$SELINUX_B"_
-		}
-		;;
-	*)
-		{
-			echo
-			echo "Invalid choice entered. Exiting..."
-			sleep 2
-			exit 1
-		}
-		;;
-	esac
+	if [ "${CODENAME}" == "A3050" ]; then
+		export SELINUX_B=enforcing
+		export SELINUX_STATUS="$SELINUX_B"_
+	elif [ "${CODENAME}" == "M205" ]; then
+		export SELINUX_B=enforcing
+		export SELINUX_STATUS="$SELINUX_B"_
+	elif [ "${BUILD_NO}" == "" ]; then
+		# Setup selinux for individual build
+
+		cp arch/arm64/boot/dts/exynos/dtb/exynos7885.dts arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak
+		LINE="$((grep -n 'sel_boot_state' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
+		echo " ${ON_BLUE}Choose which SElinux state you wish to have ${STD}"
+		echo " ${BLUE}"
+		echo "  1) Build Eureka with ENFORCING SElinux"
+		echo " "
+		echo "  2) Build Eureka with PERMISSIVE SElinux"
+		echo " ${STD}"
+		read -n 1 -p " ${GREEN}Select your choice: " -s choice
+		case ${choice} in
+		1)
+			{
+				export SELINUX_B=enforcing
+				export SELINUX_STATUS="$SELINUX_B"_
+				sed -i $LINE's/.*/		sel_boot_state = <0>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+				echo " "
+				echo " "
+				echo " ${GREEN}Enforcing chosen. Good choice :) ${STD}"
+				sleep 1
+			}
+			;;
+		2)
+			{
+				export SELINUX_B=permissive
+				export SELINUX_STATUS="$SELINUX_B"_
+				sed -i $LINE's/.*/		sel_boot_state = <1>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+				echo " "
+				echo " "
+				echo " ${GREEN}Permissive chosen. Use with caution! ${STD}"
+				sleep 1
+			}
+			;;
+		*)
+			{
+				echo " "
+				echo " "
+				echo " ${RED}Invalid choice entered. Exiting... ${STD}"
+				sleep 1
+				exit
+			}
+			;;
+		esac
+	else
+		echo " "
+		echo " ${RED}SELinux will be read from DTB. Please ensure that you edited DTB before starting build. ${STD}"
+		echo " "
+		sleep 2
+	fi
 	sleep 1
 }
 
-ONEUI_STATE() {
-	# Since wireguard checks for update during compilation, its group will change from $user to root.
-	# So change it back to default user group. Do this only for me. Gabriel does not need that i guess.
-	if [ ${USER} == "Chatur" ]; then
-		{
-			chown -R $PCUSER $(pwd)/net/wireguard
-		}
+TELEGRAM_UPLOAD() {
+	# Telegram functions.
+	function tg_sendText() {
+		curl -s "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
+		-d "parse_mode=html" \
+		-d text="${1}" \
+		-d chat_id=$CHAT_ID \
+		-d "disable_web_page_preview=true"
+	}
+	function tg_sendFile() {
+		curl -s "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" \
+		-F parse_mode=markdown \
+		-F chat_id=$CHAT_ID \
+		-F document=@${1} \
+		-F "caption=$POST_CAPTION"
+	}
+
+	if [ "${BUILD_NO}" == "2" ]; then
+		for files in ./kernel_zip/aroma/*.zip; do
+			MODEL="$(echo "$files" | grep -Po $REV'_\K[^*_]+')"
+			POST_CAPTION="Eureka R$REV for $MODEL (AROMA)"
+			tg_sendFile "$files" > /dev/null
+			sleep 2
+		done
+	else
+		POST_CAPTION="$CODENAME kernel R"$REV"$ANDROID_VAR"
+
+		echo " "
+		echo " ${ON_BLUE}Uploading to Telegram ${STD}"
+		echo " "
+
+		# Upload anykernel zip
+		tg_sendFile "kernel_zip/anykernel/$ZIPNAME" > /dev/null
 	fi
 }
 
@@ -406,251 +711,354 @@ DISPLAY_ELAPSED_TIME() {
 
 	BUILD_SUCCESS=$?
 	if [ $BUILD_SUCCESS != 0 ]; then
-		echo " Error: Build failed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset"
+		echo " ${RED}Error: Build failed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset ${STD}"
 		exit
 	fi
 
-	echo -e "                     Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset"
+	echo -e " ${GREEN}Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset ${STD}"
 	sleep 1
 }
 
+BUILD_ALL() {
+	if [ "${BUILD_NO}" == "" ]; then
+		export BUILD_NO=1
+	fi
+	if [ "${BUILD_NO}" == "1" ]; then
+		clear
+		TOOLCHAIN
+		clear
+		CLANG_CLEAN
+		sleep 1
+		clear
+		PROCESSES
+		clear
+		ENTER_VERSION
+		clear
+		USER
+		clear
+		SELINUX
+		OS_MENU
+		clear
+		# Generate all default DTBs in advance.
+		DTB_GENERATOR 0 0
+		DTB_GENERATOR 0 2
+		DTB_GENERATOR 0 3
+		DTB_GENERATOR 1 0
+		DTB_GENERATOR 1 2
+		DTB_GENERATOR 1 3
+	fi
+	if [ "${BUILD_NO}" == "2" ]; then
+		OS_MENU
+	fi
+	clear
+	SM_A105X
+	COMMON_STEPS
+	SM_A205X
+	COMMON_STEPS
+	SM_A202X
+	COMMON_STEPS
+	SM_A305X
+	COMMON_STEPS
+	SM_A307X
+	COMMON_STEPS
+	SM_A405X
+	COMMON_STEPS
+	if [ "${BUILD_NO}" == "1" ]; then
+		export BUILD_NO=2
+		cp drivers/media/platform/exynos/Kconfig drivers/media/platform/exynos/Kconfig.bak
+		sed -i '55s/.*/        default y/' drivers/media/platform/exynos/Kconfig
+		LOOPBACK
+	else
+		rm -rf kernel_zip/aroma/dtb/aosp/enf/default
+		rm -rf kernel_zip/aroma/dtb/aosp/perm/default
+		rm -rf kernel_zip/aroma/dtb/oneui2/enf/default
+		rm -rf kernel_zip/aroma/dtb/oneui2/perm/default
+		rm -rf kernel_zip/aroma/dtb/oneui3/enf/default
+		rm -rf kernel_zip/aroma/dtb/oneui3/perm/default
+		if [ -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
+			rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+			mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		fi
+		if [ -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
+			rm -rf drivers/media/platform/exynos/Kconfig
+			mv drivers/media/platform/exynos/Kconfig.bak drivers/media/platform/exynos/Kconfig
+		fi
+		TELEGRAM_UPLOAD
+		DISPLAY_ELAPSED_TIME
+
+	fi
+}
+
+LOOPBACK () {
+	BUILD_ALL
+}
+
 COMMON_STEPS() {
-	echo "*****************************************************"
-	echo "                                                     "
-	echo "        Starting compilation of $DEVICE_Axxx kernel  "
-	echo "                                                     "
-	echo " Defconfig = $DEFCONFIG                              "
-	echo "                                                     "
-	echo "*****************************************************"
+	clear
+	echo " ${ON_BLUE}Starting compilation ${STD}"
+	echo " "
+	echo " ${GREEN}Defconfig loaded: $DEFCONFIG ${STD}"
 	RENAME
 	sleep 1
-	echo " "
-	if [ ${CLANGC} == "OK" ]; then
-		{
-			CLANG
-		}
-	else
-		{
-			BUILD_KERNEL
-		}
-	fi
-	echo " "
+	echo " ${BLUE}"
+	CLANG_BUILD
+	echo " ${STD}"
 	sleep 1
-	if [ ${CLANGC} == "OK" ]; then
-		{
-			cp -f out/arch/$ARCH/boot/Image arch/$ARCH/boot/Image
-			cp -f out/arch/$ARCH/boot/dtb.img arch/$ARCH/boot/dtb.img
-			cp -f out/arch/$ARCH/boot/dtbo.img arch/$ARCH/boot/dtbo.img
-		}
-	fi
+	cp -f out/arch/$ARCH/boot/Image arch/$ARCH/boot/Image
+	cp -f out/arch/$ARCH/boot/dtb.img arch/$ARCH/boot/dtb.img
+	cp -f out/arch/$ARCH/boot/dtbo.img arch/$ARCH/boot/dtbo.img
 	ZIPPIFY
 	sleep 1
-	if [ ${CLANGC} == "OK" ]; then
-		{
-			CLANG_CLEAN
-		}
-	else
-		{
-			CLEAN_SOURCE
-		}
+	if [ "${BUILD_NO}" == "2" ]; then
+		AROMA
 	fi
 	sleep 1
 	echo " "
-	DISPLAY_ELAPSED_TIME
+	CLANG_CLEAN
+	sleep 1
 	echo " "
-	echo "                 *****************************************************"
-	echo "*****************                                                     *****************"
-	echo "                      $DEVICE_Axxx kernel for Android $AND_VER build finished          "
-	echo "*****************                                                     *****************"
-	echo "                 *****************************************************"
+	if [ "${BUILD_NO}" == "" ]; then
+		TELEGRAM_UPLOAD
+		DISPLAY_ELAPSED_TIME
+		echo " ${BLUE}"
+		echo " ___________                     __            "
+		echo " \_   _____/__ _________   ____ |  | _______   "
+		echo "  |    __)_|  |  \_  __ \_/ __ \|  |/ /\__  \  "
+		echo "  |        \  |  /|  | \/\  ___/|    <  / __ \_"
+		echo " /_______  /____/ |__|    \___  >__|_ \(____  /"
+		echo "         \/                   \/     \/     \/ "
+		echo " "
+		echo " $CODENAME kernel R"$REV" for $ANDROID_VAR ${STD}"
+		echo " "
+	fi
 }
 
 OS_MENU() {
 	# Give the choice to choose Android Version
-	PS3='
-Please select your Android Version: '
-	menuos=("$androidp" "$androidqr" "$androidr" "Exit")
-	select menuos in "${menuos[@]}"; do
+	echo " ${ON_BLUE}Android Versions Available: ${STD}"
+
+	if [ "${BUILD_NO}" == "1" ]; then
+		ANDROID_VAR="Android 10 (Q) / 11 (R) / 12 (S)"
+		ANDROID=r
+		AND_VER=11
+		echo " "
+		echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
+	elif [ "${BUILD_NO}" == "2" ]; then
+		ANDROID_VAR="Android 11 (OneUI 3)"
+		ANDROID=r
+		AND_VER=11
+		ONEUI3=1
+		echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
+	else
+		# Do not backup original file if a backup file already exists.
+		if [ ! -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
+			cp arch/arm64/boot/dts/exynos/dtb/exynos7885.dts arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak
+		fi
+		if [ ! -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
+			cp drivers/media/platform/exynos/Kconfig drivers/media/platform/exynos/Kconfig.bak
+		fi
+		LINE="$((grep -n 'eureka_kernel_variant' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
+
+		echo " ${GREEN}"
+		echo " 1) $android_qrs"
+		echo " "
+		echo " 2) $android_oneui3"
+		echo " "
+		read -n 1 -p " Please select your Android Version: ${STD}" -s menuos
 		case $menuos in
-		"$androidp")
+		1)
+			{
+				echo " "
+				ANDROID_VAR="Android 10 (Q) / 11 (R) / 12 (S)"
+				echo " "
+				echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
+				ANDROID=r
+				AND_VER=11
+				sed -i $LINE's/.*/			eureka_kernel_variant = <2>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+				sleep 2
+				echo " "
+			}
+			;;
+		2)
+			{
+				echo " "
+				ANDROID_VAR="Android 11 (OneUI 3)"
+				echo " "
+				echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
+				ANDROID=r
+				AND_VER=11
+				sed -i $LINE's/.*/			eureka_kernel_variant = <3>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+				sed -i '55s/.*/        default y/' drivers/media/platform/exynos/Kconfig
+				ONEUI3=1
+				sleep 2
+				echo " "
+			}
+			;;
+		*)
+			{
+				echo " "
+				echo " ${RED}Exiting build script... ${STD}"
+				sleep 2
+				echo " "
+				exit
+			}
+			;;
+		esac
+	fi
+	sleep 1
+}
+
+INDIVIDUAL() {
+	clear
+	TOOLCHAIN
+	clear
+	CLANG_CLEAN
+	sleep 1
+	clear
+	PROCESSES
+	clear
+	ENTER_VERSION
+	clear
+	USER
+	clear
+	SELINUX
+	clear
+	echo "${BLUE}******************************************************"
+	echo "*                                                    *"
+	echo "*             $PROJECT_NAME Build Script             *"
+	echo "*                  Developer: Chatur                 *"
+	echo "*            Co-Developers: Gabriel, Royna           *"
+	echo "*                                                    *"
+	echo "******************************************************"
+	echo " Some informations about parameters set:		"
+	echo -e "    > Architecture: $ARCH				"
+	echo "    > Jobs: $CORES					"
+	echo "    > Revision for this build: R$REV			"
+	echo "    > Build user: $KBUILD_BUILD_USER			"
+	echo "    > Build machine: $KBUILD_BUILD_HOST		"
+	echo "    > ARM64 Toolchain path exported			"
+	echo "    > ARM32 Toolchain path exported			"
+	echo -e "*****************************************************"
+	echo " "
+
+	echo "${STD} ${ON_BLUE}Devices available: ${STD}"
+	PS3='
+	 Please select your device: '
+	echo " ${GREEN}"
+	menuoptions=("SM_A105X" "SM_A205X" "SM_A202X" "SM_A305X" "SM_A307X" "SM_A405X" "SM_A3050X" "SM_M205X" "Exit")
+	select menuoptions in "${menuoptions[@]}"; do
+		case $menuoptions in
+		"SM_A105X")
+			echo " ${STD}"
+			OS_MENU
 			echo " "
-			echo "Android 9 (Pie) chosen as Android Major Version"
-			ANDROID=p
-			AND_VER=9
-			sleep 2
-			echo " "
+			SM_A105X
+			COMMON_STEPS
 			break
 			;;
-		"$androidqr")
+		"SM_A205X")
+			echo " ${STD}"
+			OS_MENU
 			echo " "
-			echo "Android 10 (Q) / 11 (R) chosen as Android Major Version"
-			ANDROID=r
-			AND_VER=11
-			sleep 2
-			echo " "
+			SM_A205X
+			COMMON_STEPS
 			break
 			;;
-		"$androidr")
+		"SM_A202X")
+			echo " ${STD}"
+			OS_MENU
 			echo " "
-			echo "Android 11 (OneUI 3) chosen as Android Major Version"
-			ANDROID=r
-			AND_VER=11
-			RR=1
-			sleep 2
+			SM_A202X
+			COMMON_STEPS
+			break
+			;;
+		"SM_A305X")
+			echo " ${STD}"
+			OS_MENU
 			echo " "
+			SM_A305X
+			COMMON_STEPS
+			break
+			;;
+		"SM_A307X")
+			echo " ${STD}"
+			OS_MENU
+			echo " "
+			SM_A307X
+			COMMON_STEPS
+			break
+			;;
+		"SM_A405X")
+			echo " ${STD}"
+			OS_MENU
+			echo " "
+			SM_A405X
+			COMMON_STEPS
+			break
+			;;
+		"SM_A3050X")
+			echo " ${STD}"
+			OS_MENU
+			echo " "
+			SM_A3050X
+			COMMON_STEPS
+			break
+			;;
+		"SM_M205X")
+			echo " ${STD}"
+			OS_MENU
+			echo " "
+			SM_M205X
+			COMMON_STEPS
 			break
 			;;
 		"Exit")
-			echo " "
-			echo "Exiting build script.."
+			echo " ${RED}Exiting build script... ${STD}"
 			sleep 2
-			echo " "
 			exit
 			;;
 		*)
-			echo Invalid option.
+			echo " "
+			echo " ${RED}Invalid option. Try again. ${STD}"
 			;;
 		esac
 	done
 }
 
-#################################################################
 
 ###################### Script starts here #######################
 
-AUTO_TOOLCHAIN
-if [ ${CLANGC} == "OK" ]; then
-	{
-		CLANG_CLEAN
-		sleep 2
-	}
-else
-	{
-		CLEAN_SOURCE
-	}
+if [ "${BOT_TOKEN}" == "0" ]; then
+	echo " ${RED}ERROR! Please configure Telegram vars properly."
+	exit
 fi
-clear
-PROCESSES
-clear
-ENTER_VERSION
-clear
-USER
-# Disable updating oneui build_files for the time being..
-#clear
-#UPDATE_BUILD_FILES
-clear
-SELINUX
-clear
-echo "******************************************************"
-echo "*             $PROJECT_NAME Build Script             *"
-echo "*                  Developer: Chatur                 *"
-echo "*                Co-Developer: Gabriel               *"
-echo "*                                                    *"
-if [ ${CLANGC} == "OK" ]; then
-	echo "*      Compiling kernel using Proton Clang 13        *"
-else
-	echo "*        Compiling kernel using gay toochain         *"
-fi
-echo "*                                                    *"
-echo "******************************************************"
-echo " Some informations about parameters set:		"
-echo -e "    > Architecture: $ARCH				"
-echo "    > Jobs: $CORES					"
-echo "    > Revision for this build: R$REV			"
-echo "    > SElinux Status: $SELINUX_B			"
-echo "    > Kernel Name Template: $VERSION			"
-echo "    > Build user: $KBUILD_BUILD_USER			"
-echo "    > Build machine: $KBUILD_BUILD_HOST		"
-echo "    > Build started on: $BUILD_START			"
-echo "    > ARM64 Toolchain exported				"
-echo "    > ARM32 Toolchain exported				"
-echo -e "*****************************************************"
-echo " "
 
-echo " Devices avalaible for compilation: "
-echo " "
-PS3='
- Please select your device: '
-menuoptions=("SM_A105X" "SM_A205X" "SM_A202X" "SM_A305X" "SM_A307X" "SM_A405X" "SM_M205X" "Exit")
-select menuoptions in "${menuoptions[@]}"; do
-	case $menuoptions in
-	"SM_A105X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
-		OS_MENU
-		echo " "
-		SM_A105X
-		COMMON_STEPS
-		break
-		;;
-	"SM_A205X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
-		OS_MENU
-		echo " "
-		SM_A205X
-		COMMON_STEPS
-		break
-		;;
-	"SM_A202X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
-		OS_MENU
-		echo " "
-		SM_A202X
-		COMMON_STEPS
-		break
-		;;
-	"SM_A305X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
-		OS_MENU
-		echo " "
-		SM_A305X
-		COMMON_STEPS
-		break
-		;;
-	"SM_A307X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
-		OS_MENU
-		echo " "
-		SM_A307X
-		COMMON_STEPS
-		break
-		;;
-	"SM_A405X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
-		OS_MENU
-		echo " "
-		SM_A405X
-		COMMON_STEPS
-		break
-		;;
-	"SM_M205X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
-		OS_MENU
-		echo " "
-		SM_M205X
-		COMMON_STEPS
-		break
-		;;
-	"Exit")
-		echo " Exiting build script.."
-		sleep 2
+if [ "$1" == "auto" ]; then
+	if [ "$2" == "hmp" ]; then
+		export SCHEDULER=HMP
+	elif [ "$2" == "ems" ]; then
+		export SCHEDULER=EMS
+	else
+		echo " ${RED}Missing second argument!"
 		exit
-		;;
-	*)
-		echo Invalid option.
-		;;
-	esac
-done
+	fi
+	BUILD_ALL
+elif [ "$1" == "dtb" ]; then
+    clear
+    echo " ${ON_BLUE}Exynos7885 (2019) DTB generator: ${STD}"
+    echo " "
+    if [ "$2" == "auto" ]; then
+        CUSTOM_DTB
+    else
+        read -p " ${GREEN}Have you already edited the dts file(s)? (y/n) : " dummy
+        if [ "${dummy}" == "y" ]; then
+            DTB_GENERATOR
+        else
+            exit
+        fi
+    fi
+else
+	BUILD_NO=""
+	INDIVIDUAL
+
+fi

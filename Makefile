@@ -1,6 +1,6 @@
 VERSION = 4
 PATCHLEVEL = 4
-SUBLEVEL = 288
+SUBLEVEL = 302
 EXTRAVERSION =
 NAME = Blurry Fish Butt
 export ANDROID_MAJOR_VERSION=r
@@ -303,20 +303,10 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-ifneq ($(LLVM),)
-HOSTCC	= ccache clang
-HOSTCXX	= clang++
-else
 HOSTCC       = ccache gcc
 HOSTCXX      = g++
-endif
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -std=gnu89 -ffast-math
-HOSTCXXFLAGS = -O3
-
-ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
-HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
-		-Wno-missing-field-initializers
-endif
+HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
+HOSTCXXFLAGS = -O2
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -349,21 +339,6 @@ scripts/Kbuild.include: ;
 include scripts/Kbuild.include
 
 # Make variables (CC, etc...)
-CPP		= $(CC) -E
-ifneq ($(LLVM),)
-CC		= ccache clang
-CXX             = clang++
-LD		= ld.lld
-LLD             = lld
-AR		= llvm-ar
-NM		= llvm-nm
-OBJCOPY		= llvm-objcopy
-OBJDUMP		= llvm-objdump
-READELF		= llvm-readelf
-STRIP		= llvm-strip
-AS              = llvm-as
-OBJSIZE         = llvm-size
-else
 AS		= $(CROSS_COMPILE)as
 LD		= $(CROSS_COMPILE)ld
 CC		= ccache $(CROSS_COMPILE)gcc
@@ -374,7 +349,6 @@ NM		= $(CROSS_COMPILE)nm
 STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
-endif
 AWK		= awk
 GENKSYMS	= scripts/genksyms/genksyms
 INSTALLKERNEL  := installkernel
@@ -691,8 +665,8 @@ LDFLAGS		+= -plugin LLVMgold.so
 endif
 # use llvm-ar for building symbol tables from IR files, and llvm-dis instead
 # of objdump for processing symbol versions and exports
-LLVM_AR		:= llvm-ar
-LLVM_NM		:= llvm-nm
+LLVM_AR		:= /home/alexandre/vortex-clang-master/bin/llvm-ar
+LLVM_NM		:= /home/alexandre/vortex-clang-master/bin/llvm-nm
 export LLVM_AR LLVM_NM
 # Set O3 optimization level for LTO
 LDFLAGS		+= --plugin-opt=O3
@@ -717,75 +691,12 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3_OFAST_SUB_OPTIONS
-KBUILD_CFLAGS   += -O3 -fno-signed-zeros -fassociative-math -fno-trapping-math -freciprocal-math -fno-math-errno $(call cc-disable-warning,maybe-uninitialized,) $(CFLAGS)
-KBUILD_CPPFLAGS += -O3
-KBUILD_AFLAGS   += -O3 -mcpu=cortex-a53
-LDFLAGS         += -O3
-KBUILD_LDFLAGS  += -O3
+KBUILD_CFLAGS   += -O3 -fno-signed-zeros -fassociative-math -fno-trapping-math -freciprocal-math -fno-math-errno $(call cc-disable-warning,maybe-uninitialized,)
 else ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
 else
 KBUILD_CFLAGS   += -O3
 endif
-
-ifeq ($(cc-name),clang)
-# Add Some optimization flags for clang
-KBUILD_CFLAGS	+= -O3 -mcpu=cortex-a53 \
--fomit-frame-pointer -pipe \
--ffunction-sections \
--ffp-model=fast -foptimize-sibling-calls $(CFLAGS)
-
-# Enable Clang Polly optimizations
-KBUILD_CFLAGS	+= -mllvm -polly \
-                   -mllvm -polly-use-runtime-alias-checks \
-                   -mllvm -polly-detect-track-failures \
-                   -mllvm -polly-optimized-scops \
-                   -mllvm -polly-import-jscop-dir \
-                   -mllvm -polly-run-export-jscop \
-                   -mllvm -polly-use-llvm-names \
-                   -mllvm -polly-omp-backend=LLVM \
-                   -mllvm -polly-delicm-max-ops=0 \
-                   -mllvm -polly-2nd-level-tiling \
-                   -mllvm -polly-position=early \
-                   -mllvm -polly-position=before-vectorizer \
-                   -mllvm -polly-num-threads=8 \
-                   -mllvm -polly-scheduling=dynamic \
-                   -mllvm -polly-scheduling-chunksize=1 \
-                   -mllvm -polly-vectorizer=polly \
-                   -mllvm -polly-opt-fusion=max \
-                   -mllvm -polly-opt-maximize-bands=yes \
-                   -mllvm -polly-ast-use-context \
-                   -mllvm -polly-detect-keep-going \
-		   -mllvm -polly-invariant-load-hoisting \
-		   -mllvm -polly-run-dce \
-		   -mllvm -polly-run-inliner \
-		   -mllvm -polly-vectorizer=stripmine \
-		   -mllvm -polly-opt-simplify-deps=no \
-		   -mllvm -polly-rtc-max-arrays-per-group=40 \
-		   -mllvm -polly-parallel \
-			 -mllvm -polly-ast-detect-parallel $(CFLAGS)
-                          #-mllvm -polly-no-early-exit
-endif                          
-
-# Add EXP New Pass Manager for clang
-KBUILD_CFLAGS	+= -fexperimental-new-pass-manager
-#endif
-
-#### too lazy to remove doubles...
-KBUILD_CFLAGS	+= -fasynchronous-unwind-tables -fexceptions -fno-semantic-interposition -D_FORTIFY_SOURCE=2 \
--fno-strict-aliasing \
--pthread -Wall -Wformat-security -fwrapv --param=ssp-buffer-size=32 \
--D_REENTRANT $(CFLAGS)
-
-#-g
-
-#
-
-#####KBUILD_CFLAGS += $(call cc-ifversion, -lt, 0409, \
-			$(call cc-disable-warning,maybe-uninitialized,))
-
-# Add EXP New Pass Manager for clang
-KBUILD_CFLAGS	+= $(call cc-option,-fexperimental-new-pass-manager)
 
 ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS	+= -Werror
@@ -866,6 +777,10 @@ KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
 KBUILD_CFLAGS += $(call cc-disable-warning, duplicate-decl-specifier)
 # Quiet clang warning: comparison of unsigned expression < 0 is always false
 KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
+# CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
+# source of a reference will be _MergedGlobals and not on of the whitelisted names.
+# See modpost pattern 2
+KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
 KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
 endif
 

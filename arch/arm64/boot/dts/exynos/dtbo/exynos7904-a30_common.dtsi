@@ -116,6 +116,10 @@
 					use-lassenA;
 					use-btn-adc-mode;
 					use-det-gdet-adc-mode = <1>;
+					water-threshold-max = <2801>;
+					water-threshold-min = <286>;
+					aux-cable-detect-adc = <255>;
+					fake-jack-adc = <253>;
 					jackin-dbnc-time = <0xC0>;
 					jackout-dbnc-time = <0x02>;
 					jack-imp-tuning = <9>;
@@ -1580,3 +1584,14 @@ usi_mode = "hsi2c0" or "hsi2c1" or "spi" or "uart"
 
 };
 
+&reserved_memory {
+	video_frame {
+		 compatible = "exynos8890-ion,vframe";
+		 ion,secure;
+		 ion,reusable;
+		 size = <0x2800000>;
+		 id = <5>;
+		 compat-id = <26 29>;
+		 alignment = <0x0 0x00400000>;
+	};
+};

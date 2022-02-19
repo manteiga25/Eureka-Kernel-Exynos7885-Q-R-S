@@ -123,7 +123,7 @@ static int exynos7885_devfreq_int_init_freq_table(struct exynos_devfreq_data *da
 	if (data->min_freq > data->max_freq)
 		data->min_freq = data->max_freq;
 
-	min_freq = 107000;
+	min_freq = (u32)cal_dfs_get_min_freq(data->dfs_id);
 	if (!min_freq) {
 		dev_err(data->dev, "failed get min frequency\n");
 		return -EINVAL;
@@ -143,7 +143,7 @@ static int exynos7885_devfreq_int_init_freq_table(struct exynos_devfreq_data *da
 			return PTR_ERR(target_opp);
 		}
 
-		data->min_freq = 107000;
+		data->min_freq = dev_pm_opp_get_freq(target_opp);
 		rcu_read_unlock();
 	}
 

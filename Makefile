@@ -305,8 +305,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = ccache gcc
 HOSTCXX      = g++
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
-HOSTCXXFLAGS = -O2
+HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -std=gnu89
+HOSTCXXFLAGS = -O3
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -692,11 +692,21 @@ ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3_OFAST_SUB_OPTIONS
 KBUILD_CFLAGS   += -O3 -fno-signed-zeros -fassociative-math -fno-trapping-math -freciprocal-math -fno-math-errno $(call cc-disable-warning,maybe-uninitialized,)
+KBUILD_CPPFLAGS += -O3
+KBUILD_AFLAGS   += -O3 -mcpu=cortex-a53
+LDFLAGS         += -O3
+KBUILD_LDFLAGS  += -O3
 else ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
 else
 KBUILD_CFLAGS   += -O3
 endif
+
+ifeq ($(cc-name),clang)
+# Add Some optimization flags for clang
+KBUILD_CFLAGS	+= -fomit-frame-pointer -pipe \
+-ffunction-sections \
+-ffp-model=fast -foptimize-sibling-calls
 
 # Enable Clang Polly optimizations
 KBUILD_CFLAGS	+= -mllvm -polly \
@@ -729,6 +739,26 @@ KBUILD_CFLAGS	+= -mllvm -polly \
 			 -mllvm -polly-ast-detect-parallel
                           #-mllvm -polly-no-early-exit
 endif                          
+
+# Add EXP New Pass Manager for clang
+KBUILD_CFLAGS	+= -fexperimental-new-pass-manager
+#endif
+
+#### too lazy to remove doubles...
+KBUILD_CFLAGS	+= -fasynchronous-unwind-tables -fexceptions -fno-semantic-interposition -D_FORTIFY_SOURCE=2 \
+-fno-strict-aliasing \
+-pthread -Wall -Wformat-security -fwrapv --param=ssp-buffer-size=32 \
+-D_REENTRANT
+
+#-g
+
+#
+
+#####KBUILD_CFLAGS += $(call cc-ifversion, -lt, 0409, \
+			$(call cc-disable-warning,maybe-uninitialized,))
+
+# Add EXP New Pass Manager for clang
+KBUILD_CFLAGS	+= $(call cc-option,-fexperimental-new-pass-manager)
 
 ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS	+= -Werror
@@ -824,7 +854,7 @@ KBUILD_CFLAGS += $(call cc-disable-warning, packed-not-aligned)
 KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
 
 ifeq ($(ld-name),lld)
-LDFLAGS += -O2
+LDFLAGS += -O3
 endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)

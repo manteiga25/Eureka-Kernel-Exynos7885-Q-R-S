@@ -444,6 +444,11 @@ config LD_DEAD_CODE_DATA_ELIMINATION
 	  sections (e.g., '.text.init'). Typically '.' in section names
 	  is used to distinguish them from label names / C identifiers.
 
+config LD_DEAD_CODE_DATA_ELIMINATION
+        bool "Eliminate dead code"
+        help
+           1.
+
 config LTO
 	def_bool n
 

@@ -49,7 +49,6 @@
 /* Locals and temporaries.  */
 
 SYM_FUNC_START_WEAK_PI(strchrnul)
-SYM_FUNC_START_ALIAS(__strchrnul)
 	/* Magic constant 0x40100401 to allow us to identify which lane
 	   matches the termination condition.  */
 	mov	wtmp2, #0x0401
@@ -113,4 +112,3 @@ L(tail):
 	ret
 
 SYM_FUNC_END_PI(strchrnul)
-SYM_FUNC_END_ALIAS(__strchrnul)

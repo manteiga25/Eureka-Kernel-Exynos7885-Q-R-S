@@ -70,6 +70,10 @@ config MALI_TMIX_R25P1
 config MALI_TMIX_R26P0
 	depends on MALI_TMIX
 	bool "mimir r26p0 driver"
+	
+config MALI_TMIX_R34P0
+	depends on MALI_TMIX
+	bool "mimir r34p0 driver"
 endchoice
 
 if MALI_TMIX_R3P0
@@ -104,3 +108,6 @@ if MALI_TMIX_R26P0
 source "drivers/gpu/arm/b_r26p0/Kconfig"
 endif
 
+if MALI_TMIX_R34P0
+source "drivers/gpu/arm/b_r34p0/Kconfig"
+endif

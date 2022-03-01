@@ -725,7 +725,6 @@ KBUILD_CFLAGS	+= -mllvm -polly \
                    -mllvm -polly-scheduling=dynamic \
                    -mllvm -polly-scheduling-chunksize=1 \
                    -mllvm -polly-vectorizer=polly \
-                   -mllvm -polly-opt-fusion=max \
                    -mllvm -polly-opt-maximize-bands=yes \
                    -mllvm -polly-ast-use-context \
                    -mllvm -polly-detect-keep-going \

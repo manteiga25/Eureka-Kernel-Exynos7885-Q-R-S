@@ -5,13 +5,16 @@
  * SPDX-License-Identifier: MIT OR Apache-2.0 WITH LLVM-exception
  */
 
+#include <linux/linkage.h>
+#include <asm/assembler.h>
+
 /* Assumptions:
  *
  * ARMv8-a, AArch64, Advanced SIMD.
  * MTE compatible.
  */
 
-#include "../asmdefs.h"
+#define L(label) .L ## label
 
 #define dstin		x0
 #define srcin		x1
@@ -53,9 +56,7 @@
    bits in the syndrome reflect the order in which things occur in the original
    string, counting trailing zeros identifies exactly which byte matched.  */
 
-ENTRY (STRCPY)
-	PTR_ARG (0)
-	PTR_ARG (1)
+SYM_FUNC_START_WEAK_PI(strcpy)
 	bic	src, srcin, 15
 	mov	wtmp, 0xf00f
 	ld1	{vdata.16b}, [src]
@@ -157,4 +158,4 @@ L(loop):
 	IFSTPCPY (add result, dst, len)
 	ret
 
-END (STRCPY)
+SYM_FUNC_END_PI(strcpy)

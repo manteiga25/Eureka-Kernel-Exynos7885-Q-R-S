@@ -511,15 +511,15 @@ static int __init exynos_ion_reserved_mem_setup(struct reserved_mem *rmem)
 #define DECLARE_EXYNOS_ION_RESERVED_REGION(compat, name) \
 RESERVEDMEM_OF_DECLARE(name, compat#name, exynos_ion_reserved_mem_setup)
 
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", crypto);
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", vfw);
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", vnfw);
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", vstream);
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", vframe);
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", vscaler);
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", secure_camera);
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", gpu_crc);
-DECLARE_EXYNOS_ION_RESERVED_REGION("exynos8890-ion,", gpu_buffer);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", crypto);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", vfw);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", vnfw);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", vstream);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", vframe);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", vscaler);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", secure_camera);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", gpu_crc);
+DECLARE_EXYNOS_ION_RESERVED_REGION("exynos7885-ion,", gpu_buffer);
 
 int ion_exynos_contig_heap_info(int region_id, phys_addr_t *phys, size_t *size)
 {

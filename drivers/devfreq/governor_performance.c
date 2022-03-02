@@ -40,7 +40,9 @@ static int devfreq_performance_handler(struct devfreq *devfreq,
 
 	return ret;
 }
-
+#ifdef DEVFREQ_GOV_PERFORMANCE_MODULE
+static
+#endif
 static struct devfreq_governor devfreq_performance = {
 	.name = "performance",
 	.get_target_freq = devfreq_performance_func,
@@ -63,5 +65,6 @@ static void __exit devfreq_performance_exit(void)
 
 	return;
 }
+//fs_initcall(devfreq_performance_init);
 module_exit(devfreq_performance_exit);
 MODULE_LICENSE("GPL");

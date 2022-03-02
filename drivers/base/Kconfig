@@ -326,5 +326,5 @@ config CMA_ALIGNMENT
 	  If unsure, leave the default value "8".
 
 endif
-
+source "drivers/base/arm/Kconfig"
 endmenu

@@ -30,65 +30,6 @@ if PM_DEVFREQ
 
 comment "DEVFREQ Governors"
 
-choice
-        prompt "Default DEVFreq governor"
-	default DEVFREQ_GOV_SIMPLE_INTERACTIVE
-	help
-	  This option sets which DEVFreq governor shall be loaded at
-	  startup. If in doubt, select 'performance'.
-
-config DEVFREQ_GOV_SIMPLE_ONDEMAND
-	tristate "Simple Ondemand"
-	help
-	  Chooses frequency based on the recent load on the device. Works
-	  similar as ONDEMAND governor of CPUFREQ does. A device with
-	  Simple-Ondemand should be able to provide busy/total counter
-	  values that imply the usage rate. A device may provide tuned
-	  values to the governor with data field at devfreq_add_device().
-
-config DEVFREQ_GOV_SIMPLE_USAGE
-	tristate "Simple Usage"
-	help
-	  Chooses frequency based on the percentage of target device.
-
-config DEVFREQ_GOV_SIMPLE_EXYNOS
-	tristate "Simple Exynos"
-	help
-	  Chooses frequency based on the threshold of target device.
-
-config DEVFREQ_GOV_SIMPLE_INTERACTIVE
-	tristate "Simple Interactive"
-	help
-	  Chooses frequency based on the requested PM QoS from target device.
-	  And This governor uses timer when change frequency.
-
-config DEVFREQ_GOV_PERFORMANCE
-	tristate "Performance"
-	help
-	  Sets the frequency at the maximum available frequency.
-	  This governor always returns UINT_MAX as frequency so that
-	  the DEVFREQ framework returns the highest frequency available
-	  at any time.
-
-config DEVFREQ_GOV_POWERSAVE
-	tristate "Powersave"
-	help
-	  Sets the frequency at the minimum available frequency.
-	  This governor always returns 0 as frequency so that
-	  the DEVFREQ framework returns the lowest frequency available
-	  at any time.
-
-config DEVFREQ_GOV_USERSPACE
-	tristate "Userspace"
-	help
-	  Sets the frequency at the user specified one.
-	  This governor returns the user configured frequency if there
-	  has been an input to /sys/devices/.../power/devfreq_set_freq.
-	  Otherwise, the governor does not change the frequnecy
-	  given at the initialization.
-
-endchoice
-
 config DEVFREQ_GOV_SIMPLE_ONDEMAND
 	tristate "Simple Ondemand"
 	help

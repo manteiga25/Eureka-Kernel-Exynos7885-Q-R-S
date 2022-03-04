@@ -215,7 +215,6 @@ static int dsim_panel_set_brightness(struct lcd_info *lcd, int force)
 #else
 	lcd->brightness = lcd->bd->props.brightness;
 #endif
-
 	if (!force && lcd->state != PANEL_STATE_RESUMED) {
 		dev_info(&lcd->ld->dev, "%s: panel is not active state\n", __func__);
 		goto exit;

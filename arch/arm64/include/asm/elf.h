@@ -184,6 +184,7 @@ typedef compat_elf_greg_t		compat_elf_gregset_t[COMPAT_ELF_NGREG];
 
 #define compat_start_thread		compat_start_thread
 #define COMPAT_SET_PERSONALITY(ex)	set_thread_flag(TIF_32BIT);
+
 #ifdef CONFIG_VDSO32
 #define COMPAT_ARCH_DLINFO		_SET_AUX_ENT_VDSO
 #else

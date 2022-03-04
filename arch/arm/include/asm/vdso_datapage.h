@@ -50,12 +50,12 @@ struct vdso_data {
 	u32 xtime_coarse_sec;	/* coarse time */
 	u32 xtime_coarse_nsec;
 
-	/* wall to monotonic offset */
+		/* wall to monotonic offset */
 	u32 wtm_clock_sec;
 	vdso_wtm_clock_nsec_t	wtm_clock_nsec;
 	/* CLOCK_REALTIME - seconds */
 	vdso_xtime_clock_sec_t	xtime_clock_sec;
-	u32 cs_mono_mult;	/* clocksource multiplier */
+	u32 cs_mono_mult;		/* clocksource multiplier */
 
 	u64 cs_cycle_last;	/* last cycle value */
 	u64 cs_mask;		/* clocksource mask */
@@ -66,7 +66,7 @@ struct vdso_data {
 	
 	u32 btm_sec;		/* monotonic to boot time */
 	u32 btm_nsec;
-	/* Raw clocksource multipler */
+        /* Raw clocksource multipler */
 	u32 cs_raw_mult;
 	/* Raw time */
 	vdso_raw_time_sec_t raw_time_sec;

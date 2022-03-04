@@ -23,16 +23,11 @@
 #ifndef __VDSO_COMPILER_H
 #define __VDSO_COMPILER_H
 
-#include <asm/arch_timer.h>	/* for arch_counter_get_cntvct()	*/
 #include <asm/processor.h>	/* for cpu_relax()			*/
+#include <asm/sysreg.h>		/* for read_sysreg()			*/
 #include <asm/unistd.h>
 #include <linux/compiler.h>
 #include <linux/hrtimer.h>	/* for LOW_RES_NSEC and MONOTONIC_RES_NSEC */
-#include <linux/time.h>		/* for NSEC_PER_SEC			*/
-
-#ifndef CONFIG_AEABI
-#error This code depends on AEABI system call conventions
-#endif
 
 #ifdef CONFIG_ARM_ARCH_TIMER
 #define ARCH_PROVIDES_TIMER
@@ -42,13 +37,13 @@
 static notrace long name##_fallback(type_arg1 _##name_arg1,		  \
 				    type_arg2 _##name_arg2)		  \
 {									  \
-	register type_arg1 name_arg1 asm("r0") = _##name_arg1;		  \
-	register type_arg2 name_arg2 asm("r1") = _##name_arg2;		  \
-	register long ret asm ("r0");					  \
-	register long nr asm("r7") = __NR_##name;			  \
+	register type_arg1 name_arg1 asm("x0") = _##name_arg1;		  \
+	register type_arg2 name_arg2 asm("x1") = _##name_arg2;		  \
+	register long ret asm ("x0");					  \
+	register long nr asm("x8") = __NR_##name;			  \
 									  \
 	asm volatile(							  \
-	"	swi #0\n"						  \
+	"	svc #0\n"						  \
 	: "=r" (ret)							  \
 	: "r" (name_arg1), "r" (name_arg2), "r" (nr)			  \
 	: "memory");							  \
@@ -56,20 +51,20 @@ static notrace long name##_fallback(type_arg1 _##name_arg1,		  \
 	return ret;							  \
 }
 
-#define arch_vdso_read_counter() arch_counter_get_cntvct()
-
-/* Avoid unresolved references emitted by GCC */
-
-void __aeabi_unwind_cpp_pr0(void)
+/*
+ * AArch64 implementation of arch_counter_get_cntvct() suitable for vdso
+ */
+static __always_inline notrace u64 arch_vdso_read_counter(void)
 {
+	/* Read the virtual counter. */
+	isb();
+	return read_sysreg(cntvct_el0);
 }
 
-void __aeabi_unwind_cpp_pr1(void)
-{
-}
-
-void __aeabi_unwind_cpp_pr2(void)
-{
-}
+/* Rename exported vdso functions */
+#define __vdso_clock_gettime __kernel_clock_gettime
+#define __vdso_gettimeofday __kernel_gettimeofday
+#define __vdso_clock_getres __kernel_clock_getres
+#define __vdso_time __kernel_time
 
 #endif /* __VDSO_COMPILER_H */

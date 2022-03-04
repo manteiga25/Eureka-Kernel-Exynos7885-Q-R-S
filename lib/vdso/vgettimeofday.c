@@ -293,7 +293,6 @@ static notrace int do_boottime(const struct vdso_data *vd, struct timespec *ts)
 
 	return 0;
 }
-
 #endif /* ARCH_PROVIDES_TIMER */
 
 notrace int __vdso_clock_gettime(clockid_t clock, struct timespec *ts)
@@ -365,8 +364,8 @@ int __vdso_clock_getres(clockid_t clock, struct timespec *res)
 	switch (clock) {
 	case CLOCK_REALTIME_COARSE:
 	case CLOCK_MONOTONIC_COARSE:
-	    nsec = LOW_RES_NSEC;
-	    break;
+		nsec = LOW_RES_NSEC;
+	        break;
 #ifdef ARCH_PROVIDES_TIMER
 	case CLOCK_REALTIME:
 	case CLOCK_MONOTONIC:
@@ -375,7 +374,7 @@ int __vdso_clock_getres(clockid_t clock, struct timespec *res)
 		nsec = MONOTONIC_RES_NSEC;
 		break;
 #endif
-	default:    
+	default:
 		return clock_getres_fallback(clock, res);
 	}
 

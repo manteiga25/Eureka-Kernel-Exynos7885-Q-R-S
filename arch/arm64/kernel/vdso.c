@@ -43,7 +43,6 @@ struct vdso_mappings {
 	struct vm_special_mapping data_mapping;
 	struct vm_special_mapping code_mapping;
 };
-static struct page **vdso_pagelist;
 
 /*
  * The vDSO data page.
@@ -58,7 +57,7 @@ struct vdso_data *vdso_data = &vdso_data_store.data;
 /*
  * Create and map the vectors page for AArch32 tasks.
  */
- #if !defined(CONFIG_VDSO32) || defined(CONFIG_KUSER_HELPERS)
+#if !defined(CONFIG_VDSO32) || defined(CONFIG_KUSER_HELPERS)
 static struct page *vectors_page[] __ro_after_init;
 static const struct vm_special_mapping compat_vdso_spec[] = {
 	{
@@ -71,8 +70,8 @@ static const struct vm_special_mapping compat_vdso_spec[] = {
 		.name	= "[kuserhelpers]",
 		.pages	= &vectors_page[1],
 	},
-};
 #endif
+};
 static struct page *vectors_page[ARRAY_SIZE(compat_vdso_spec)] __ro_after_init;
 #endif
 
@@ -139,13 +138,13 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
 	}
 
 	ret = _install_special_mapping(mm, addr, PAGE_SIZE,
-				     VM_READ|VM_EXEC|
+				       VM_READ|VM_EXEC|
 				       VM_MAYREAD|VM_MAYWRITE|VM_MAYEXEC,
 				       &compat_vdso_spec[0]);
 	if (IS_ERR(ret))
 		goto out;
-		
-	current->mm->context.vdso = (void *)addr;
+
+       current->mm->context.vdso = (void *)addr;
 
 #ifdef CONFIG_KUSER_HELPERS
 	/* Map the kuser helpers at the ABI-defined high address. */
@@ -155,7 +154,6 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
 				       &compat_vdso_spec[1]);
 #endif
 out:
-
 	up_write(&mm->mmap_sem);
 
 	return PTR_ERR_OR_ZERO(ret);
@@ -169,18 +167,19 @@ static int __init vdso_mappings_init(const char *name,
 				     struct vdso_mappings *mappings)
 {
 	unsigned long i, vdso_pages;
+	struct page **vdso_pagelist;
 	unsigned long pfn;
 
 	if (memcmp(code_start, "\177ELF", 4)) {
-		pr_err("%sis not a valid ELF object!\n", name);
+		pr_err("%s is not a valid ELF object!\n", name);
 		return -EINVAL;
 	}
 
 	vdso_pages = (code_end - code_start) >> PAGE_SHIFT;
 	pr_info("%s: %ld pages (%ld code @ %p, %ld data @ %p)\n",
-		name, vdso_pages + 1, vdso_pages, code_start, 1L, vdso_data);
+		name, vdso_pages + 1, vdso_pages, code_start, 1L,
+		vdso_data);
 
-	/* Allocate the vDSO pagelist, plus a page for the data. */
 	/*
 	 * Allocate space for storing pointers to the vDSO code pages + the
 	 * data page. The pointers must have the same lifetime as the mappings,
@@ -203,17 +202,16 @@ static int __init vdso_mappings_init(const char *name,
 
 	/* Populate the special mapping structures */
 	mappings->data_mapping = (struct vm_special_mapping) {
-		.name   = "[vvar]",
-		.pages  = &vdso_pagelist[0],
+		.name	= "[vvar]",
+		.pages	= &vdso_pagelist[0],
 	};
 
 	mappings->code_mapping = (struct vm_special_mapping) {
-		.name   = "[vdso]",
-		.pages  = &vdso_pagelist[1],
+		.name	= "[vdso]",
+		.pages	= &vdso_pagelist[1],
 	};
 
-	mappings->num_code_pages = vdso_pages;
-
+        mappings->num_code_pages = vdso_pages;
 	return 0;
 }
 
@@ -243,6 +241,7 @@ static int __init vdso_init(void)
 	return vdso_mappings_init("vdso", vdso_start, vdso_end,
 				  &vdso_mappings);
 }
+
 arch_initcall(vdso_init);
 
 static int vdso_setup(struct mm_struct *mm,
@@ -255,11 +254,9 @@ static int vdso_setup(struct mm_struct *mm,
 	/* Be sure to map the data page */
 	vdso_mapping_len = vdso_text_len + PAGE_SIZE;
 
-	down_write(&mm->mmap_sem);
 	vdso_base = get_unmapped_area(NULL, 0, vdso_mapping_len, 0, 0);
 	if (IS_ERR_VALUE(vdso_base))
 		return PTR_ERR_OR_ZERO(ERR_PTR(vdso_base));
-
 	ret = _install_special_mapping(mm, vdso_base, PAGE_SIZE,
 				       VM_READ|VM_MAYREAD,
 				       &mappings->data_mapping);
@@ -270,10 +267,9 @@ static int vdso_setup(struct mm_struct *mm,
 	ret = _install_special_mapping(mm, vdso_base, vdso_text_len,
 				       VM_READ|VM_EXEC|
 				       VM_MAYREAD|VM_MAYWRITE|VM_MAYEXEC,
-				         &mappings->code_mapping);
+				       &mappings->code_mapping);
 	if (!IS_ERR(ret))
 		mm->context.vdso = (void *)vdso_base;
-
 	return PTR_ERR_OR_ZERO(ret);
 }
 
@@ -284,8 +280,7 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
 	struct mm_struct *mm = current->mm;
 	void *ret;
 
-	if (down_write_killable(&mm->mmap_sem))
-		return -EINTR;
+	down_write(&mm->mmap_sem);
 
 	ret = ERR_PTR(vdso_setup(mm, &vdso32_mappings));
 #ifdef CONFIG_KUSER_HELPERS
@@ -305,16 +300,13 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
 #endif /* CONFIG_VDSO32 */
 #endif /* CONFIG_COMPAT */
 
-int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
+	int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 {
 	struct mm_struct *mm = current->mm;
 	int ret;
 
-	if (down_write_killable(&mm->mmap_sem))
-		return -EINTR;
-
+        down_write(&mm->mmap_sem);
 	ret = vdso_setup(mm, &vdso_mappings);
-
 	up_write(&mm->mmap_sem);
 	return ret;
 }

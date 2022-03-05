@@ -26,7 +26,7 @@
  *
  *  v1.8 - add debug sysfs trigger to see how driver work
  *
- v1.9.0 - Syncronized suspend/resume driver printing of ignored errors, and turned on state notifier debugger..
+  v1.9.0 - Syncronized suspend/resume driver printing of ignored errors, and turned on state notifier debugger..
  *         - subsys_incall changed to module_init,
  *         - state notifier - going back to scheduled work, and subsys initcall,
  *         - initializing work in module init.
@@ -77,12 +77,12 @@ struct workqueue_struct *suspend_work_queue;
 
 static DEFINE_MUTEX(power_suspend_lock);
 static LIST_HEAD(power_suspend_handlers);
+static DEFINE_SPINLOCK(state_lock);
 struct work_struct power_suspend_work;
 struct work_struct power_resume_work;
 
 static void power_suspend(struct work_struct *work);
 static void power_resume(struct work_struct *work);
-static DEFINE_SPINLOCK(state_lock);
 
 static int state; // Yank555.lu : Current powersave state (screen on / off)
 static int mode;  // Yank555.lu : Current powersave mode  (kernel / userspace / panel / hybrid)
@@ -327,7 +327,7 @@ static int power_suspend_init(void)
 //	mode = POWER_SUSPEND_PANEL;	// Yank555.lu : Default to display panel mode
 	mode = POWER_SUSPEND_HYBRID;	// Yank555.lu : Default to display panel / autosleep hybrid mode
 
- INIT_WORK(&power_suspend_work, power_suspend);
+INIT_WORK(&power_suspend_work, power_suspend);
 	INIT_WORK(&power_resume_work, power_resume);
 
 	return 0;
@@ -335,7 +335,7 @@ static int power_suspend_init(void)
 
 static void power_suspend_exit(void)
 {
-       flush_work(&power_suspend_work);
+        flush_work(&power_suspend_work);
 	flush_work(&power_resume_work);
 
 	if (power_suspend_kobj != NULL)

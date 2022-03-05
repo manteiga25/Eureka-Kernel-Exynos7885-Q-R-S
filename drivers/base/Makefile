@@ -23,7 +23,6 @@ obj-$(CONFIG_SOC_BUS) += soc.o
 obj-$(CONFIG_PINCTRL) += pinctrl.o
 obj-$(CONFIG_DEV_COREDUMP) += devcoredump.o
 obj-$(CONFIG_GENERIC_MSI_IRQ_DOMAIN) += platform-msi.o
-obj-y += arm/
 
 ccflags-$(CONFIG_DEBUG_DRIVER) := -DDEBUG
 

@@ -293,6 +293,7 @@ static notrace int do_boottime(const struct vdso_data *vd, struct timespec *ts)
 
 	return 0;
 }
+
 #endif /* ARCH_PROVIDES_TIMER */
 
 notrace int __vdso_clock_gettime(clockid_t clock, struct timespec *ts)
@@ -376,7 +377,7 @@ int __vdso_clock_getres(clockid_t clock, struct timespec *res)
 #endif
 	default:
 		return clock_getres_fallback(clock, res);
-	}
+        }
 
 	if (likely(res != NULL)) {
 		res->tv_sec = 0;

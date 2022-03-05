@@ -6,6 +6,10 @@
 
 ifeq ($(cc-name),clang)
   CC_ARM32 := $(CC) $(CLANG_TARGET_ARM32) -no-integrated-as
+   GCC_ARM32_TC := $(realpath $(dir $(shell which $(CROSS_COMPILE_ARM32)ld))/..)
+ifneq ($(GCC_ARM32_TC),)
+  CC_ARM32 += --gcc-toolchain=$(GCC_ARM32_TC)
+endif
 else
   CC_ARM32 := $(CROSS_COMPILE_ARM32)$(cc-name)
 endif
@@ -29,7 +33,9 @@ cc32-ldoption = $(call try-run,\
 # NOSTDINC_FLAGS
 VDSO_CPPFLAGS := -nostdinc -isystem $(shell $(CC_ARM32) -print-file-name=include)
 VDSO_CPPFLAGS += $(LINUXINCLUDE)
-VDSO_CPPFLAGS += $(KBUILD_CPPFLAGS)
+VDSO_CPPFLAGS += -D__KERNEL__
+VDSO_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
+VDSO_CPPFLAGS += $(ARCH_CPPFLAGS) $(KCPPFLAGS)
 
 # Common C and assembly flags
 # From top-level Makefile
@@ -68,7 +74,7 @@ VDSO_CFLAGS += -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
                -Werror-implicit-function-declaration \
                -Wno-format-security \
                -std=gnu89
-VDSO_CFLAGS  += -O3
+VDSO_CFLAGS  += -O3 -mllvm -polly -mcpu=cortex-a53
 # Some useful compiler-dependent flags from top-level Makefile
 VDSO_CFLAGS += $(call cc32-option,-Wdeclaration-after-statement,)
 VDSO_CFLAGS += $(call cc32-option,-Wno-pointer-sign)

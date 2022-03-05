@@ -160,7 +160,7 @@ static int plugins_init(void)
 		} else if (plugins[i].is_attached == 1 && plugins[i].stay_attached == 1) {
 			fw_name = (const char *)(acpm_srambase + plugins[i].fw_name);
 			if (plugins[i].fw_name && fw_name &&
-					(strchr(fw_name, 'DVFS') || strchr(fw_name, 'dvfs')))
+					(strstr(fw_name, "DVFS") || strstr(fw_name, "dvfs")))
 				dvfs_base_addr = acpm_srambase + (plugins[i].base_addr & ~0x1);
 		}
 	}

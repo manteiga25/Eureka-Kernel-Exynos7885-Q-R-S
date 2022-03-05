@@ -77,7 +77,7 @@ static int exynos7885_devfreq_cam_init_freq_table(struct exynos_devfreq_data *da
 	u32 flags = 0;
 	int i;
 
-	max_freq = (u32)cal_dfs_get_max_freq(data->dfs_id);
+	max_freq = 690000;
 	if (!max_freq) {
 		dev_err(data->dev, "failed to get max frequency\n");
 		return -EINVAL;
@@ -97,7 +97,7 @@ static int exynos7885_devfreq_cam_init_freq_table(struct exynos_devfreq_data *da
 			return PTR_ERR(target_opp);
 		}
 
-		data->max_freq = dev_pm_opp_get_freq(target_opp);
+		data->max_freq = 690000;
 		rcu_read_unlock();
 	}
 
@@ -105,7 +105,7 @@ static int exynos7885_devfreq_cam_init_freq_table(struct exynos_devfreq_data *da
 	if (data->min_freq > data->max_freq)
 		data->min_freq = data->max_freq;
 
-	min_freq = (u32)cal_dfs_get_min_freq(data->dfs_id);
+	min_freq = 650000;
 	if (!min_freq) {
 		dev_err(data->dev, "failed to get min frequency\n");
 		return -EINVAL;
@@ -125,7 +125,7 @@ static int exynos7885_devfreq_cam_init_freq_table(struct exynos_devfreq_data *da
 			return PTR_ERR(target_opp);
 		}
 
-		data->min_freq = dev_pm_opp_get_freq(target_opp);
+		data->min_freq = 650000;
 		rcu_read_unlock();
 	}
 

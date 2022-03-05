@@ -144,7 +144,7 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
 	if (IS_ERR(ret))
 		goto out;
 
-       current->mm->context.vdso = (void *)addr;
+        current->mm->context.vdso = (void *)addr;
 
 #ifdef CONFIG_KUSER_HELPERS
 	/* Map the kuser helpers at the ABI-defined high address. */
@@ -154,6 +154,7 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
 				       &compat_vdso_spec[1]);
 #endif
 out:
+
 	up_write(&mm->mmap_sem);
 
 	return PTR_ERR_OR_ZERO(ret);
@@ -203,7 +204,7 @@ static int __init vdso_mappings_init(const char *name,
 	/* Populate the special mapping structures */
 	mappings->data_mapping = (struct vm_special_mapping) {
 		.name	= "[vvar]",
-		.pages	= &vdso_pagelist[0],
+		.pages	=  &vdso_pagelist[0],
 	};
 
 	mappings->code_mapping = (struct vm_special_mapping) {
@@ -300,7 +301,7 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
 #endif /* CONFIG_VDSO32 */
 #endif /* CONFIG_COMPAT */
 
-	int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
+int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 {
 	struct mm_struct *mm = current->mm;
 	int ret;

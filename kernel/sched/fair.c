@@ -92,7 +92,7 @@ unsigned int normalized_sysctl_sched_min_granularity = 500000ULL;
 /*
  * is kept at sysctl_sched_latency / sysctl_sched_min_granularity
  */
-static unsigned int sched_nr_latency = 6;    // 8
+static unsigned int sched_nr_latency = 6; //8
 
 /*
  * After fork, child runs first. If set to 0 (default) then
@@ -9365,10 +9365,9 @@ more_balance:
 out_balanced:
 	/*
 	 * We reach balance although we may have faced some affinity
-	  * constraints. Clear the imbalance flag only if other tasks got
-	 * a chance to move and fix the imbalance.
+	 * constraints. Clear the imbalance flag if it was set.
 	 */
-	if (sd_parent && !(env.flags & LBF_ALL_PINNED)) {
+	if (sd_parent) {
 		int *group_imbalance = &sd_parent->groups->sgc->imbalance;
 
 		if (*group_imbalance)

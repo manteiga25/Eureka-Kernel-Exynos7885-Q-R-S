@@ -112,3 +112,4 @@ L(tail):
 	ret
 
 SYM_FUNC_END_PI(strchrnul)
+EXPORT_SYMBOL_NOKASAN(strchrnul)

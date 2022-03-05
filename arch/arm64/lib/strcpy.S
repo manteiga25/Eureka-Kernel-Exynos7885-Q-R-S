@@ -159,3 +159,4 @@ L(loop):
 	ret
 
 SYM_FUNC_END_PI(strcpy)
+EXPORT_SYMBOL_NOKASAN(strcpy)

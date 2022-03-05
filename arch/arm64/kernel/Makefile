@@ -14,7 +14,7 @@ CFLAGS_REMOVE_return_address.o = -pg
 arm64-obj-y		:= debug-monitors.o entry.o irq.o fpsimd.o		\
 			   entry-fpsimd.o process.o ptrace.o setup.o signal.o	\
 			   sys.o stacktrace.o time.o traps.o io.o vdso.o	\
-			   hyp-stub.o psci.o cpu_ops.o insn.o	\
+			   hyp-stub.o psci.o cpu_ops.o insn.o                  	\
 			   return_address.o cpuinfo.o cpu_errata.o		\
 			   cpufeature.o alternative.o cacheinfo.o		\
 			   smp.o smp_spin_table.o topology.o smccc-call.o	\
@@ -26,7 +26,7 @@ OBJCOPYFLAGS := --prefix-symbols=__efistub_
 $(obj)/%.stub.o: $(obj)/%.o FORCE
 	$(call if_changed,objcopy)
 
-arm64-obj-$(CONFIG_COMPAT)		+= sys32.o signal32.o           	\
+arm64-obj-$(CONFIG_COMPAT)		+= sys32.o signal32.o 	                \
 					   sys_compat.o entry32.o		\
 					   ../../arm/kernel/opcodes.o
 ifneq ($(CONFIG_VDSO32),y)

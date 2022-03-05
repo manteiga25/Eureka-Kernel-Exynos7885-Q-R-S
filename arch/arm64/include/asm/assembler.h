@@ -23,8 +23,6 @@
 #ifndef __ASM_ASSEMBLER_H
 #define __ASM_ASSEMBLER_H
 
-#include <asm-generic/export.h>
-
 #include <asm/asm-offsets.h>
 #include <asm/cpufeature.h>
 #include <asm/page.h>
@@ -32,6 +30,8 @@
 #include <asm/cputype.h>
 #include <asm/ptrace.h>
 #include <asm/thread_info.h>
+
+#include <asm-generic/export.h>
 
 /*
  * Stack pushing/popping (register pairs only). Equivalent to store decrement
@@ -410,7 +410,7 @@ alternative_endif
 	.set	__pi_##x, x;		\
 	.size	__pi_##x, . - x;	\
 	ENDPROC(x)
-	
+
 #ifdef CONFIG_KASAN
 #define EXPORT_SYMBOL_NOKASAN(name)
 #else

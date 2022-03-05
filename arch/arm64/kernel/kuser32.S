@@ -20,7 +20,7 @@
  *
  * AArch32 user helpers.
  *
- * These helpers are provided for compatibility with AArch32 binaries that
+  * These helpers are provided for compatibility with AArch32 binaries that
  * still need them. They are installed at a fixed address by
  * aarch32_setup_additional_pages().
  *

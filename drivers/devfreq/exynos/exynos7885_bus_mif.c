@@ -51,18 +51,30 @@ static unsigned int ect_find_constraint_freq(struct ect_minlock_domain *ect_doma
 		unsigned int freq = ect_domain->level[i].main_frequencies;
 
 		// MIF frequencies
-		int arr[5] = {2093000,2002000,1794000,1352000,1014000};
+		int arr[10] = {2093000,2002000,1794000,1539000,1352000,1014000,845000,676000,546000,420000};
 
-		for (bm_index = 0; bm_index <= 4; bm_index++) {
+		for (bm_index = 0; bm_index <= 9; bm_index++) {
 
-			if(freq == arr[0] || freq == arr[1])
+			if(freq == arr[0])
+				ect_domain->level[i].sub_frequencies=533000;
+			if(freq == arr[1])
 				ect_domain->level[i].sub_frequencies=533000;
 			if(freq == arr[2])
-				ect_domain->level[i].sub_frequencies=333000;
+				ect_domain->level[i].sub_frequencies=533000;
 			if(freq == arr[3])
-				ect_domain->level[i].sub_frequencies=267000;
+				ect_domain->level[i].sub_frequencies=533000;
 			if(freq == arr[4])
+				ect_domain->level[i].sub_frequencies=333000;
+			if(freq == arr[5])
+				ect_domain->level[i].sub_frequencies=267000;
+			if(freq == arr[6])
 				ect_domain->level[i].sub_frequencies=133000;
+			if(freq == arr[7])
+				ect_domain->level[i].sub_frequencies=133000;
+			if(freq == arr[8])
+				ect_domain->level[i].sub_frequencies=107000;
+			if(freq == arr[9])
+				ect_domain->level[i].sub_frequencies=107000;
 		}
 
 		if (ect_domain->level[i].main_frequencies == freq)
@@ -149,9 +161,9 @@ static int exynos7885_mif_constraint_parse(struct exynos_devfreq_data *data,
 	config.indirection = false;
 
 	for (i = 0; i < dvfs_domain->num_of_level; i++) {
-		if (data->opp_list[i].freq > max_freq ||
-				data->opp_list[i].freq < min_freq)
-			continue;
+		//if (data->opp_list[i].freq > max_freq ||
+		//		data->opp_list[i].freq < min_freq)
+		//	continue;
 
 		config.cmd[0] = use_level;
 		config.cmd[1] = data->opp_list[i].freq;
@@ -159,9 +171,17 @@ static int exynos7885_mif_constraint_parse(struct exynos_devfreq_data *data,
 		config.cmd[3] = 0;
 #ifdef CONFIG_EXYNOS_DVFS_MANAGER
 		if (const_flag) {
+		        if(const_table[use_level].master_freq==1794000)
+				const_table[use_level].constraint_freq==533000;
+			else const_table[use_level].master_freq==2093000;
+			        const_table[use_level].constraint_freq==533000;
 			const_table[use_level].master_freq = data->opp_list[i].freq;
 			const_table[use_level].constraint_freq
 				= ect_find_constraint_freq(ect_domain, data->opp_list[i].freq);
+			if(const_table[use_level].master_freq==1794000)
+				const_table[use_level].constraint_freq==533000;
+			else const_table[use_level].master_freq==2093000;
+			        const_table[use_level].constraint_freq==533000;
 			config.cmd[3] = const_table[use_level].constraint_freq;
 		}
 #endif
@@ -291,15 +311,23 @@ static int exynos7885_devfreq_mif_init_freq_table(struct exynos_devfreq_data *da
 			return PTR_ERR(target_opp);
 		}
 
-		data->max_freq = 2093000;
+         if( data->max_freq==2093000) {
+		data->max_freq=2093000;
 		rcu_read_unlock();
+	} else if( data->max_freq==1794000) {
+		data->max_freq=1794000;
+		rcu_read_unlock();
+	} else 	{		  
+		data->max_freq = 2093000;	
+		rcu_read_unlock();
+	}
 	}
 
 	/* min ferquency must be equal or under max frequency */
 	if (data->min_freq > data->max_freq)
 		data->min_freq = data->max_freq;
 
-	min_freq = (u32)cal_dfs_get_min_freq(data->dfs_id);
+	min_freq = 420000;
 	if (!min_freq) {
 		dev_err(data->dev, "failed get min frequency\n");
 		return -EINVAL;
@@ -319,7 +347,7 @@ static int exynos7885_devfreq_mif_init_freq_table(struct exynos_devfreq_data *da
 			return PTR_ERR(target_opp);
 		}
 
-		data->min_freq = dev_pm_opp_get_freq(target_opp);
+		data->min_freq = 420000;
 		rcu_read_unlock();
 	}
 
@@ -332,7 +360,9 @@ static int exynos7885_devfreq_mif_init_freq_table(struct exynos_devfreq_data *da
 	for (i = 0; i < data->max_state; i++) {
 		if (data->opp_list[i].freq > data->max_freq ||
 			data->opp_list[i].freq < data->min_freq)
-			dev_pm_opp_disable(data->dev, (unsigned long)data->opp_list[i].freq);
+			 data->max_freq=data->opp_list[0].freq; // for max freq is 1794
+			// data->max_freq=data->opp_list[0].freq ; // for max freq is 2093
+			//dev_pm_opp_disable(data->dev, (unsigned long)data->opp_list[i].freq); //disable for full available_frequencie
 	}
 
 	data->devfreq_profile.initial_freq = cal_dfs_get_boot_freq(data->dfs_id);

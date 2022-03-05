@@ -40,7 +40,8 @@ endif
 
 ifeq ($(CONFIG_COMPAT_VDSO), y)
   CROSS_COMPILE_ARM32 ?= $(CONFIG_CROSS_COMPILE_ARM32:"%"=%)
-   # Check that the user has provided a valid prefix for the 32-bit toolchain.
+
+  # Check that the user has provided a valid prefix for the 32-bit toolchain.
   # To prevent selecting the system $(cc-name) by default, the prefix is not
   # allowed to be empty, unlike CROSS_COMPILE. In the unlikely event that the
   # system $(cc-name) is actually the 32-bit ARM compiler to be used, the
@@ -65,8 +66,6 @@ ifeq ($(CONFIG_COMPAT_VDSO), y)
     vdso32 := -DCONFIG_VDSO32=1
   endif
 endif
-
-KBUILD_CFLAGS	+= -mgeneral-regs-only $(lseinstr) $(vdso32)
 
 ifeq ($(cc-name),clang)
 # This is a workaround for https://bugs.llvm.org/show_bug.cgi?id=30792.

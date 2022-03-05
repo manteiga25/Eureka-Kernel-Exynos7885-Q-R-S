@@ -22,7 +22,7 @@ ccflags-y += $(call cc-option, -fno-whole-program)
 
 # Force -O2 to avoid libgcc dependencies
 CFLAGS_REMOVE_vgettimeofday.o = -pg -Os
-CFLAGS_vgettimeofday.o = -O3 -fPIC
+CFLAGS_vgettimeofday.o = -O3 -fPIC -mllvm -polly -mcpu=cortex-a53
 ifneq ($(cc-name),clang)
 CFLAGS_vgettimeofday.o += -mcmodel=tiny
 endif
@@ -72,7 +72,7 @@ $(obj-vdso-c): %.o: %.c FORCE
 
 # Actual build commands
 quiet_cmd_vdsold = VDSOL   $@
-       cmd_vdsold = $(CC) $(c_flags) $(call cc-ldoption, -Wl$(comma)-n) \
+      cmd_vdsold = $(CC) $(c_flags) $(call cc-ldoption, -Wl$(comma)-n) \
 			  -Wl$(comma)-T $^ -o $@
 quiet_cmd_vdsocc = VDSOC   $@
       cmd_vdsocc = ${CC} $(c_flags) -c -o $@ $<

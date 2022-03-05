@@ -1359,7 +1359,7 @@ config COMPAT_VDSO
 	bool "32-bit vDSO"
 	depends on COMPAT
 	select ARM_ARCH_TIMER_VCT_ACCESS
-	default n
+	default y
 	help
 	  Warning: a 32-bit toolchain is necessary to build the vDSO. You
 	  must explicitly define which toolchain should be used by setting

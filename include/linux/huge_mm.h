@@ -168,7 +168,7 @@ static inline struct page *compound_trans_head(struct page *page)
 {
 	if (PageTail(page)) {
 		struct page *head;
-		head = page->first_page;
+		head = page;
 		smp_rmb();
 		/*
 		 * head may be a dangling pointer.
@@ -181,6 +181,7 @@ static inline struct page *compound_trans_head(struct page *page)
 	}
 	return page;
 }
+
 #else /* CONFIG_TRANSPARENT_HUGEPAGE */
 #define HPAGE_PMD_SHIFT ({ BUILD_BUG(); 0; })
 #define HPAGE_PMD_MASK ({ BUILD_BUG(); 0; })

@@ -119,7 +119,9 @@ TEXT_OFFSET := 0x00080000
 endif
 
 ifeq ($(cc-name),clang)
-KBUILD_CFLAGS += $(call cc-disable-warning, asm-operand-widths)
+KBUILD_CFLAGS	+= -DCONFIG_ARCH_SUPPORTS_INT128
+else
+KBUILD_CFLAGS	+= $(call cc-ifversion, -ge, 0500, -DCONFIG_ARCH_SUPPORTS_INT128)
 endif
 
 # KASAN_SHADOW_OFFSET = VA_START + (1 << (VA_BITS - 3)) - (1 << 61)

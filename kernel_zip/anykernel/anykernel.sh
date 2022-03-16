@@ -4,7 +4,7 @@
 ## AnyKernel setup
 # begin properties
 properties() { '
-kernel.string=Eureka Kernel by Eureka Team
+kernel.string=Rainbow Kernel
 do.devicecheck=0
 do.modules=0
 do.systemless=1
@@ -47,7 +47,7 @@ set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
 #Method 2:
 split_boot;
-ui_print "- Installing Eureka kernel";
+ui_print "- Installing Rainbow kernel";
 flash_boot;
 
 ui_print " ";
@@ -70,7 +70,7 @@ chmod 755 /data/media/0/changelog.txt;
 ui_print "- Installation finished successfully";
 ui_print " ";
 
-ui_print "- Thank you for using Eureka Kernel :)";
+ui_print "- Thank you for using Rainbow Kernel :)";
 ui_print " ";
 
 ui_print "- Flash zip found on your internal storage to";

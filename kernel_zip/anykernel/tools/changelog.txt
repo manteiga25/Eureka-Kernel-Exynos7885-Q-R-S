@@ -1,3 +1,27 @@
-• Added required support for FM Radio for Eureka ROMs.
+• added vdso32 (for higher performance and battery running armv7 32bit instructions)
+* added llvm polly optimization and other flags optimization
+* update driver Powersuspend v1.8 to v2.0
+* added crc32 optimized routine
+* implemented optimized checksum routine (has a 4x transfer boost in cortex a53)
+* added neon accelerator XOR implementation (can have a performance increase of up to 20%)
+* added arm64_lse_atomic instructions for increased performance in atomic operations (only arm64 roms)
+* optimize memchr, memcpy, memmove, memset, copy_page, memcmp, strcmp, strlen
+* added strchrnul and strcpy optimized rountine
+* added support for clang INT128 bit
+* some memory optimizations
+* removed various debugs
+* small kernel latencies have been slightly reduced
+* update devfreq_boost driver to 2021 version
+* fixed cpu governor interactivex
+* update gpu driver b_r26p0 to b_r34p0 and other gpu optimization
+* udervolt big cores and litlle cores 25mv
+* litlle optimization LZ4 descompression
+* update ashmem
+* other minor changes and optimizations
+* Optimized very unlikely/likely branches
+* Eliminated dead code
+* Stack Protector buffer overflow detection for more security
+* set timer frequency to 1000hz
+* added Exynos CAM frequecies
+* kernel compiled with vortex clang-15 + LLVM + polly + thinLTO + other optimization flags (for more performance)
 
-* Switched to fq_codel queue discipline: Better download/upload speed.

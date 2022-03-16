@@ -1,23 +1,27 @@
 ************************************************
- ___________                     __            
- \_   _____/__ _________   ____ |  | _______   
-  |    __)_|  |  \_  __ \_/ __ \|  |/ /\__  \  
-  |        \  |  /|  | \/\  ___/|    <  / __ \_
- /_______  /____/ |__|    \___  >__|_ \(____  /
-         \/                   \/     \/     \/
-                                                
+  _______            ____          ___             ________   _______   ____   ____
+ |   _   |          /    \        |   |  |\     |  |  __  |  |  ___  |  |  |   |  |
+ |  |_|  |         /  __  \       |   |  | \    |  | |  | |  | |   | |  |  |   |  |
+ |_______|        /  /  \  \      |   |  |  \   |  | |__| |  | |   | |  |  |   |  |
+ |  |\  \        /  /____\  \     |   |  |   \  |  |______|  | |   | |  |  |   |  |
+ |  | \  \      /  /______\  \    |   |  |    \ |  |  __  |  | |   | |  |  |   |  |
+ |  |  \  \    /  /        \  \   |   |  |     \|  | |  | |  | |___| |  |  |___|  |
+ |__|   \__\  /__/          \__\  |___|  |      \  | |__| |  |_______|  |_________|
+                                                   |______|
+
 ************************************************
  Source    : Based on A305F_EUR_RR source code 
- Version   : Eureka R9.2
+ Version   : Rainbow R1 (based on Eureka R9.2)
  Chipset   : Exynos 7885 with Mali G71 MP2     
- Android   : For AOSP ROMs & GSIs
- Developer : Eureka Team  
+ Android   : For OneUI, AOSP ROMs & GSIs
+ Developer : Manteiga25  
  Support   : @eureka_support_group on Telegram 
 ************************************************
           PERFORMANCE AND GAMING KERNEL         
 ************************************************
  Antutu score for stock kernel: +~95183        
- Antutu score for Eureka kernel: +~172970      
+ Antutu score for Eureka kernel: +~172970
+ Antutu score for Rainbow kernek: +~?      
 ************************************************
                   MAIN FEATURES                 
 ************************************************
@@ -27,5 +31,5 @@
  Removed Security Stuffs, debugging codes, etc..
  Balance between performance and battery life   
  Upstream kernel version from 4.4.177 to 4.4.302
- Compiled kernel with Vortex Clang 14 toolchain
+ Compiled kernel with Vortex Clang 15 toolchain
 ************************************************

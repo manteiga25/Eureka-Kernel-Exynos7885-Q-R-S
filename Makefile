@@ -355,6 +355,7 @@ INSTALLKERNEL  := installkernel
 DEPMOD		= depmod
 PERL		= perl
 PYTHON		= python
+PYTHON3.10      = python3.10
 CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \

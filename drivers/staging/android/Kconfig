@@ -4,7 +4,7 @@ if ANDROID
 
 config ASHMEM
 	bool "Enable the Anonymous Shared Memory Subsystem"
-	default n
+	default y
 	depends on SHMEM
 	---help---
 	  The ashmem subsystem is a new shared memory allocator, similar to

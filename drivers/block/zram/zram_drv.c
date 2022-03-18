@@ -111,7 +111,7 @@ static struct zram_entry *zram_entry_alloc(struct zram *zram,
 
 void zram_entry_free(struct zram *zram, struct zram_entry *entry)
 {
-     if (!zram_dedup_put_entry(zram, entry))
+        if (!zram_dedup_put_entry(zram, entry))
 		return;
 
 	zs_free(zram->mem_pool, entry->handle);
@@ -2077,7 +2077,7 @@ static ssize_t mm_stat_show(struct device *dev,
 			pool_stats.pages_compacted,
 			zram_dedup_dup_size(zram),
 			zram_dedup_meta_size(zram));
-			(u64)atomic64_read(&zram->stats.huge_pages));
+			(u64)atomic64_read(&zram->stats.huge_pages);
 	up_read(&zram->init_lock);
 
 	return ret;

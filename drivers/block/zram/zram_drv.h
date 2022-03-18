@@ -61,7 +61,7 @@ enum zram_pageflags {
 
 struct zram_entry {
         struct rb_node rb_node;
-	u32 len;
+        u32 len;
 	u32 checksum;
 	unsigned long refcount;
 	unsigned long handle;
@@ -99,6 +99,12 @@ struct zram_stats {
 					 * duplicated
 					 */
 	atomic64_t meta_data_size;	/* size of zram_entries */
+	atomic64_t miss_free;
+	atomic64_t bd_count;		/* no. of pages in backing device */
+	atomic64_t bd_reads;		/* no. of reads from backing device */
+	atomic64_t bd_writes;		/* no. of writes from backing device */
+	atomic64_t bd_expire;
+	atomic64_t bd_objcnt;
 };
 
 struct zram_hash {

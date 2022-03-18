@@ -115,6 +115,7 @@ void zram_entry_free(struct zram *zram, struct zram_entry *entry)
 		return;
 
 	zs_free(zram->mem_pool, entry->handle);
+
 	kfree(entry);
 	
 	atomic64_sub(sizeof(*entry), &zram->stats.meta_data_size);

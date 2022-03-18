@@ -72,7 +72,6 @@ struct zram_table_entry {
 	struct list_head lru_list;
 #endif
 };
-
 struct zram_stats {
 	atomic64_t compr_data_size;	/* compressed size of pages stored */
 	atomic64_t num_reads;	/* failed + successful */

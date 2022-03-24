@@ -23,7 +23,7 @@
 #include <linux/sched.h>
 
 #include <mali_kbase_gpu_memory_debugfs.h>
-#include <device/mali_kbase_device.h>
+#include <backend/gpu/mali_kbase_device_internal.h>
 
 #if MALI_SEC_PROBE_TEST != 1
 #include <platform/exynos/gpu_integration_defs.h>
@@ -48,7 +48,7 @@ extern int set_hmp_boost(int enable);
 #endif
 
 /* MALI_SEC_INTEGRATION */
-#include <uapi/gpu/arm/midgard/mali_uk.h>
+#include <mali_uk.h>
 #define KBASE_REG_CUSTOM_TMEM       (1ul << 19)
 #define KBASE_REG_CUSTOM_PMEM       (1ul << 20)
 

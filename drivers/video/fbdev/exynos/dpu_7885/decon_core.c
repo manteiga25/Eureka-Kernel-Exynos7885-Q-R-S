@@ -39,6 +39,7 @@
 #include <soc/samsung/cal-if.h>
 #include <soc/samsung/exynos-pd.h>
 #include <dt-bindings/clock/exynos7885.h>
+#include <linux/devfreq_boost.h>
 
 #ifdef CONFIG_STATE_NOTIFIER
 #include <linux/state_notifier.h>
@@ -1879,6 +1880,7 @@ static int decon_set_win_config(struct decon_device *decon,
 
 	num_of_window = decon_get_active_win_count(decon, win_data);
 	if (num_of_window) {
+	devfreq_boost_kick_max(DEVFREQ_EXYNOS_MIF, 100);
 		win_data->fence = decon_create_fence(decon, &fence, regs);
 		if (win_data->fence < 0)
 			goto err_prepare;

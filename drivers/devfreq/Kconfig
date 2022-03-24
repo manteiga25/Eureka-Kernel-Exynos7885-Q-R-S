@@ -191,7 +191,7 @@ config DEVFREQ_WAKE_BOOST_DURATION_MS
 
 config DEVFREQ_EXYNOS_MIF_BOOST_FREQ
 	int "Boost freq for Exynos MIF device"
-	default "0"
+	default "2093000"
 	help
 	  Boost frequency for the Exynos MIF (DDR) bus.
 

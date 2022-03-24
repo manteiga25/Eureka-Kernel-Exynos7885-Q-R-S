@@ -44,7 +44,7 @@
 		gpu_runtime_pm_delay_time = <50>;
 		gpu_dvfs_polling_time = <30>;
 		gpu_pmqos_int_disable = <0>;
-		gpu_pmqos_mif_max_clock = <1794000>;
+		gpu_pmqos_mif_max_clock = <2093000>;
 		gpu_pmqos_mif_max_clock_base = <545000>;
 		gpu_cl_dvfs_start_base = <343000>;
 		gpu_debug_level = <3>; /*DEBUG(1) INFO(2) WARNING(3) ERROR(4)*/
@@ -53,7 +53,7 @@
 		gpu_boost_gpu_min_lock = <0>;
 		gpu_boost_egl_min_lock = <1248000>;
 		gpu_vk_boost_max_lock = <338000>;
-		gpu_vk_boost_mif_min_lock = <1794000>;
+		gpu_vk_boost_mif_min_lock = <2093000>;
 		gpu_bts_support = <0>;
 		gpu_asv_cali_lock_val = <0>; /*Should check this value when MALI_ASV_CALIBRATION_SUPPORT is enabled*/
 		gpu_set_pmu_duration_reg = <0>; /* only for KC for now*/

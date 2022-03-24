@@ -87,7 +87,7 @@
 #include <asm/mmu_context.h>
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
-
+#include <linux/cpu_input_boost.h>
 #include <trace/events/sched.h>
 
 #define CREATE_TRACE_POINTS
@@ -1861,9 +1861,11 @@ long _do_fork(unsigned long clone_flags,
 	int trace = 0;
 	long nr;
 	
-	/* Boost DDR bus to the max for 60 ms when userspace launches an app */
-	if (task_is_zygote(current))
+	/* Boost DDR bus and cpu to the max for 50 ms when userspace launches an app */
+	if (task_is_zygote(current)) {
 		devfreq_boost_kick_max(DEVFREQ_EXYNOS_MIF, 50);
+		 cpu_input_boost_kick_max(50);
+	}
 
 	/*
 	 * Determine whether and which event to report to ptracer.  When

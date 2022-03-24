@@ -168,7 +168,7 @@
 					regulators {
 						b1_reg: BUCK1 {
 							regulator-name = "vdd_mif";
-							regulator-min-microvolt = <500000>;
+							regulator-min-microvolt = <450000>;
 							regulator-max-microvolt = <1100000>;
 							regulator-always-on;
 							regulator-ramp-delay = <12000>;
@@ -177,7 +177,7 @@
 
 						b2_reg: BUCK2 {
 							regulator-name = "vdd_cpucl0";
-							regulator-min-microvolt = <500000>;
+							regulator-min-microvolt = <450000>;
 							regulator-max-microvolt = <1300000>;
 							regulator-always-on;
 							regulator-ramp-delay = <12000>;
@@ -186,7 +186,7 @@
 
 						b3_reg: BUCK3 {
 							regulator-name = "vdd_cpucl1_2";
-							regulator-min-microvolt = <500000>;
+							regulator-min-microvolt = <450000>;
 							regulator-max-microvolt = <1300000>;
 							regulator-always-on;
 							regulator-ramp-delay = <12000>;
@@ -195,7 +195,7 @@
 
 						b4_reg: BUCK4 {
 							regulator-name = "vdd_int";
-							regulator-min-microvolt = <500000>;
+							regulator-min-microvolt = <450000>;
 							regulator-max-microvolt = <1200000>;
 							regulator-always-on;
 							regulator-ramp-delay = <12000>;
@@ -851,12 +851,12 @@
 					
 					dm-constraints {
 						mif-perf {
-							table = < 2288000 1794000
-								  2184000 1794000
-								  2080000 1794000
-          							  1976000 1794000
+							table = < 2288000 2093000
+								  2184000 2093000
+								  2080000 2002000
+          							  1976000 2002000
           							  1872000 1794000
-          							  1768000 1539000
+          							  1768000 1794000
           							  1664000 1539000
 								  1560000 1539000
 								  1352000 1352000

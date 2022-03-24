@@ -22,7 +22,7 @@
  * Attached value: number in kHz
  * Default value: NA
  */
-#define GPU_FREQ_KHZ_MAX (1300000)
+#define GPU_FREQ_KHZ_MAX (5000)
 /**
  * Minimum frequency GPU will be clocked at. Given in kHz.
  * This must be specified as there is no default value.
@@ -30,7 +30,7 @@
  * Attached value: number in kHz
  * Default value: NA
  */
-#define GPU_FREQ_KHZ_MIN (343000)
+#define GPU_FREQ_KHZ_MIN (5000)
 
 /**
  * CPU_SPEED_FUNC - A pointer to a function that calculates the CPU clock
@@ -70,6 +70,11 @@
  */
 /* MALI_SEC_INTEGRATION */
 #define PLATFORM_FUNCS (&platform_funcs)
+
+/*
+ * Period for DVFS sampling
+ */
+#define DEFAULT_PM_DVFS_PERIOD 50 /* 50ms */
 
 /** Power model for IPA
  *

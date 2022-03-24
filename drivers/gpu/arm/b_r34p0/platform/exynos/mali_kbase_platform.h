@@ -209,8 +209,6 @@ struct exynos_context {
 		int highspeed_load;
 		int highspeed_delay;
 		int delay_count;
-		int eureka_gpu_highspeed_clock;
-		int eureka_gpu_highspeed_load;
 	} interactive;
 #ifdef CONFIG_CPU_THERMAL_IPA
 	int norm_utilisation;
@@ -235,21 +233,10 @@ struct exynos_context {
 	int gpu_max_clock;
 	int gpu_max_clock_limit;
 	int gpu_min_clock;
-	int gpu_min_clock_limit;
 	int gpu_dvfs_start_clock;
 	int gpu_dvfs_config_clock;
 	int user_max_lock_input;
 	int user_min_lock_input;
-
-	/* eureka custom nodes*/
-	int eureka_gpu_max_clock;
-	int eureka_gpu_temp_throttling;
-	int eureka_gpu_temp_throttling_0;
-	int eureka_gpu_temp_throttling_1;
-	int eureka_gpu_temp_throttling_2;
-	int eureka_gpu_temp_throttling_3;
-	int eureka_gpu_temp_throttling_4;
-	int eureka_gpu_temp_throttling_5;
 
 	/* gpu boost lock */
 	int boost_gpu_min_lock;
@@ -293,10 +280,8 @@ struct exynos_context {
 	gpu_attribute *attrib;
 #ifdef CONFIG_EXYNOS_BTS
 	int mo_min_clock;
-#ifdef CONFIG_EXYNOS9630_BTS
 	unsigned int bts_scen_idx;
 	unsigned int is_set_bts; // Check the pair of bts scenario.
-#endif
 #ifdef CONFIG_MALI_CAMERA_EXT_BTS
 	unsigned int bts_camera_ext_idx;
 	unsigned int is_set_bts_camera_ext;

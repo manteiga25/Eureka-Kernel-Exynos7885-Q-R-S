@@ -245,6 +245,10 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 
 #ifdef CONFIG_MALI_DVFS
 	gpu_update_config_data_int(np, "g3d_cmu_cal_id", &platform->g3d_cmu_cal_id);
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+	gpu_update_config_data_int(np, "eureka_gpu_highspeed_clock", &platform->interactive.eureka_gpu_highspeed_clock);
+	gpu_update_config_data_int(np, "eureka_gpu_highspeed_load", &platform->interactive.eureka_gpu_highspeed_load);
+#endif
 	gpu_update_config_data_string(np, "governor", &of_string);
 	if (!strncmp("interactive", of_string, strlen("interactive"))) {
 		platform->governor_type = G3D_DVFS_GOVERNOR_INTERACTIVE;
@@ -252,6 +256,13 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 		platform->interactive.highspeed_clock = of_data_int_array[0] == 0 ? 500 : (u32) of_data_int_array[0];
 		platform->interactive.highspeed_load  = of_data_int_array[1] == 0 ? 100 : (u32) of_data_int_array[1];
 		platform->interactive.highspeed_delay = of_data_int_array[2] == 0 ? 0 : (u32) of_data_int_array[2];
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+		platform->interactive.highspeed_clock = platform->interactive.eureka_gpu_highspeed_clock;
+		platform->interactive.highspeed_load = platform->interactive.eureka_gpu_highspeed_load;
+#else
+		platform->interactive.highspeed_clock = 1001000;
+		platform->interactive.highspeed_load = 75;
+#endif
 	} else if (!strncmp("static", of_string, strlen("static"))) {
 		platform->governor_type = G3D_DVFS_GOVERNOR_STATIC;
 	} else if (!strncmp("booster", of_string, strlen("booster"))) {
@@ -262,12 +273,7 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 		platform->governor_type = G3D_DVFS_GOVERNOR_DEFAULT;
 	}
 
-#ifdef CONFIG_CAL_IF
-	platform->gpu_dvfs_start_clock = cal_dfs_get_boot_freq(platform->g3d_cmu_cal_id);
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "get g3d start clock from ect : %d\n", platform->gpu_dvfs_start_clock);
-#else
 	gpu_update_config_data_int(np, "gpu_dvfs_start_clock", &platform->gpu_dvfs_start_clock);
-#endif
 	gpu_update_config_data_int_array(np, "gpu_dvfs_table_size", of_data_int_array, 2);
 	for (i = 0; i < G3D_MAX_GOVERNOR_NUM; i++) {
 		gpu_dvfs_update_start_clk(i, platform->gpu_dvfs_start_clock);
@@ -276,22 +282,54 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 	}
 
 	gpu_update_config_data_int(np, "gpu_pmqos_cpu_cluster_num", &platform->gpu_pmqos_cpu_cluster_num);
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+	gpu_update_config_data_int(np, "eureka_gpu_max_clock", &platform->eureka_gpu_max_clock);
+	gpu_update_config_data_int_array(np, "eureka_gpu_temp_throttling", of_data_int_array, 6);
+	platform->eureka_gpu_temp_throttling_0 = of_data_int_array[0];
+	platform->eureka_gpu_temp_throttling_1 = of_data_int_array[1];
+	platform->eureka_gpu_temp_throttling_2 = of_data_int_array[2];
+	platform->eureka_gpu_temp_throttling_3 = of_data_int_array[3];
+	platform->eureka_gpu_temp_throttling_4 = of_data_int_array[4];
+	platform->eureka_gpu_temp_throttling_5 = of_data_int_array[5];
+#endif
 	gpu_update_config_data_int(np, "gpu_max_clock", &platform->gpu_max_clock);
-#ifdef CONFIG_CAL_IF
-	platform->gpu_max_clock_limit = (int)cal_dfs_get_max_freq(platform->g3d_cmu_cal_id);
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+	platform->gpu_max_clock = platform->eureka_gpu_max_clock;
 #else
+	platform->gpu_max_clock = 1300000;
+#endif
 	gpu_update_config_data_int(np, "gpu_max_clock_limit", &platform->gpu_max_clock_limit);
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+	platform->gpu_max_clock_limit = platform->eureka_gpu_max_clock;
+#else
+	platform->gpu_max_clock_limit = 1300000;
 #endif
 	gpu_update_config_data_int(np, "gpu_min_clock", &platform->gpu_min_clock);
+	gpu_update_config_data_int(np, "gpu_min_clock_limit", &platform->gpu_min_clock_limit);
 	gpu_update_config_data_int(np, "gpu_dvfs_bl_config_clock", &platform->gpu_dvfs_config_clock);
 	gpu_update_config_data_int(np, "gpu_default_voltage", &platform->gpu_default_vol);
 	gpu_update_config_data_int(np, "gpu_cold_minimum_vol", &platform->cold_min_vol);
 	gpu_update_config_data_int(np, "gpu_voltage_offset_margin", &platform->gpu_default_vol_margin);
 	gpu_update_config_data_bool(np, "gpu_tmu_control", &platform->tmu_status);
 	gpu_update_config_data_int(np, "gpu_temp_throttling_level_num", &of_data_int);
-	if (of_data_int == TMU_LOCK_CLK_END)
+	if (of_data_int == TMU_LOCK_CLK_END) {
 		gpu_update_config_data_int_array(np, "gpu_temp_throttling", platform->tmu_lock_clk, TMU_LOCK_CLK_END);
-	else
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+		platform->tmu_lock_clk[0] = platform->eureka_gpu_temp_throttling_0;
+		platform->tmu_lock_clk[1] = platform->eureka_gpu_temp_throttling_1;
+		platform->tmu_lock_clk[2] = platform->eureka_gpu_temp_throttling_2;
+		platform->tmu_lock_clk[3] = platform->eureka_gpu_temp_throttling_3;
+		platform->tmu_lock_clk[4] = platform->eureka_gpu_temp_throttling_4;
+		platform->tmu_lock_clk[5] = platform->eureka_gpu_temp_throttling_5;
+#else
+		platform->tmu_lock_clk[0] = 676000;
+		platform->tmu_lock_clk[1] = 545000;
+		platform->tmu_lock_clk[2] = 450000;
+		platform->tmu_lock_clk[3] = 343000;
+		platform->tmu_lock_clk[4] = 343000;
+		platform->tmu_lock_clk[5] = 343000;
+#endif
+	} else
 		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "mismatch tmu lock table size: %d, %d\n",
 				of_data_int, TMU_LOCK_CLK_END);
 #ifdef CONFIG_CPU_THERMAL_IPA
@@ -395,11 +433,13 @@ static int gpu_dvfs_update_asv_table(struct kbase_device *kbdev)
 	for (i = 0; i < cal_get_dvfs_lv_num; i++) {
 		cal_freq = g3d_rate_volt[i].rate;
 		cal_vol = g3d_rate_volt[i].volt;
-		if (cal_freq <= platform->gpu_max_clock && cal_freq >= platform->gpu_min_clock) {
+		if (cal_freq <= platform->gpu_max_clock_limit && cal_freq >= platform->gpu_min_clock) {
 			for (j = 0; j < dvfs_table_row_num; j++) {
 				table_idx = j * dvfs_table_col_num;
 				// Compare cal_freq with DVFS table freq
 				if (cal_freq == of_data_int_array[table_idx]) {
+					if (!cal_vol)
+						cal_vol = platform->gpu_default_vol;
 					dvfs_table[j].clock = cal_freq;
 					dvfs_table[j].voltage = cal_vol;
 					dvfs_table[j].min_threshold = of_data_int_array[table_idx+1];
@@ -464,7 +504,7 @@ static int gpu_context_init(struct kbase_device *kbdev)
 #endif
 
 	core_props = &(kbdev->gpu_props.props.core_props);
-	core_props->gpu_freq_khz_max = platform->gpu_max_clock * 1000;
+	core_props->gpu_freq_khz_max = platform->gpu_max_clock;
 
 #if MALI_SEC_PROBE_TEST != 1
 	kbdev->vendor_callbacks = (struct kbase_vendor_callbacks *)gpu_get_callbacks();

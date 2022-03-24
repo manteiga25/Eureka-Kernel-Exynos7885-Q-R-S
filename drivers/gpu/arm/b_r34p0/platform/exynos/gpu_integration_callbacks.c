@@ -23,7 +23,7 @@
 #include <linux/sched.h>
 
 #include <mali_kbase_gpu_memory_debugfs.h>
-#include <device/mali_kbase_device.h>
+#include <backend/gpu/mali_kbase_device_internal.h>
 
 #if MALI_SEC_PROBE_TEST != 1
 #include <platform/exynos/gpu_integration_defs.h>

@@ -94,7 +94,7 @@ static int exynos7885_devfreq_aud_init_freq_table(struct exynos_devfreq_data *da
 	u32 flags = 0;
 	int i;
 
-	max_freq = (u32)cal_dfs_get_max_freq(data->dfs_id);;
+	max_freq = (u32)cal_dfs_get_max_freq(data->dfs_id);
 	if (!max_freq) {
 		dev_err(data->dev, "failed get max frequency\n");
 		return -EINVAL;

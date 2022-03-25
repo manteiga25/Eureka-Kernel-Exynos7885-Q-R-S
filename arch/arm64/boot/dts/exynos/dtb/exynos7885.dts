@@ -304,11 +304,11 @@
 			cal-id = <ACPM_DVFS_CPUCL1>;
 			dm-type = <DM_CPU_CL0>;
 
-			min-freq = <449000>;
+			min-freq = <208000>;
 
 			eureka_min-freq = <208000>;
 			eureka_max-freq = <1794000>;
-			eureka_pm_qos-booting = <1690000>;
+			eureka_pm_qos-booting = <1794000>;
 			eureka_user-default-qos = <902000>;
 
 			/* PM QoS Class ID*/
@@ -353,11 +353,11 @@
 			cal-id = <ACPM_DVFS_CPUCL0>;
 			dm-type = <DM_CPU_CL1>;
 
-			min-freq = <936000>;
+			min-freq = <208000>;
 
 			eureka_min-freq = <208000>;
 			eureka_max-freq = <2288000>;
-			eureka_pm_qos-booting = <2080000>;
+			eureka_pm_qos-booting = <2288000>;
 			eureka_user-default-qos = <1144000>;
 
 			/* PM QoS Class ID*/
@@ -566,11 +566,11 @@
 		/* Delay time */
 		use_delay_time = "false";
 
-		freq_info = <1180000 394000 394000 394000 1180000 394000>;
+		freq_info = <394000 394000 394000 394000 1180000 394000>;
 		/* <initial, default_qos, suspend_freq, min, max, reboot_freq> */
 
 		/* Booting value */
-		boot_info = <0 1180000>;
+		boot_info = <0 394000>;
 		/* boot_qos_timeout, boot_freq */
 
 		/* default dev profile */
@@ -2690,10 +2690,7 @@
 					  1352000  839000
 					  1144000  839000
 					   936000  839000
-					   728000  839000
-					   520000  757000
-					   312000  676000
-					   208000  208000 >;
+					   728000  839000 >;
 			};
 
 			max-limit {
@@ -2710,10 +2707,7 @@
 					  1352000 1586000
 					  1144000 1352000
 					   936000 1248000
-					   728000 1248000 
-					   520000 1014000
-					   312000 1014000
-					   208000 1014000 >;
+					   728000 1248000 >;
 			};
 		};
 	};

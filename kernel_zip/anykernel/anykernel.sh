@@ -51,11 +51,11 @@ ui_print "- Installing Rainbow kernel";
 flash_boot;
 
 ui_print " ";
-ui_print "- Installing/updating Eureka dtb";
+ui_print "- Installing/updating Rainbow dtb";
 ui_print " ";
 flash_dtb;
 
-ui_print "- Installing/updating Eureka dtbo";
+ui_print "- Installing/updating Rainbow dtbo";
 ui_print " ";
 flash_dtbo;
 

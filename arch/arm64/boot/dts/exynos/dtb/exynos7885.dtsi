@@ -259,7 +259,7 @@
 			cal-id = <ACPM_DVFS_CPUCL1>;
 			dm-type = <DM_CPU_CL0>;
 
-			min-freq = <449000>;
+			min-freq = <208000>;
 
 			/* PM QoS Class ID*/
 			pm_qos-min-class = <3>;
@@ -303,7 +303,7 @@
 			cal-id = <ACPM_DVFS_CPUCL0>;
 			dm-type = <DM_CPU_CL1>;
 
-			min-freq = <936000>;
+			min-freq = <208000>;
 
 			/* PM QoS Class ID*/
 			pm_qos-min-class = <5>;
@@ -387,7 +387,7 @@
 		use_delay_time = "true";
 		delay_time_list = "20";
 
-		freq_info = <2093000 676000 420000 420000 2093000 2093000>;
+		freq_info = <2093000 676000 420000 420000 2093000 676000>;
 		/* initial_freq, default_qos, suspend_freq, min_freq, max_freq reboot_freq */
 
 		/* Booting value */
@@ -450,7 +450,7 @@
 		/* Delay time */
 		use_delay_time = "false";
 
-		freq_info = <333000 167000 167000 167000 333000 333000>;
+		freq_info = <333000 167000 167000 167000 333000 167000>;
 		/* <initial_freq, default_qos, suspend_freq, min, max, reboot_freq> */
 
 		/* Booting value */
@@ -481,7 +481,7 @@
 		/* Delay time */
 		use_delay_time = "false";
 
-		freq_info = <690000 650000 650000 650000 690000 690000>;
+		freq_info = <690000 650000 650000 650000 690000 650000>;
 		/* <initial, default_qos, suspend_freq, min, max, reboot_freq> */
 
 		/* Booting value */
@@ -3066,8 +3066,7 @@
 				ctrl-type = <PM_QOS_MIN_LIMIT>;
 				execution-mode = <AARCH64_MODE>;
 					/* big	    lit */
-				table = < 2288000 1794000
-				          2184000 1586000
+				table = < 2184000 1586000
 					  2080000  839000
 					  1976000  839000
 					  1872000  839000
@@ -3077,18 +3076,14 @@
 					  1352000  839000
 					  1144000  839000
 					   936000  839000
-					   728000  839000
-					   520000  757000
-					   312000  676000
-					   208000  208000 >;
+					   728000  839000 >;
 			};
 
 			max-limit {
 				ctrl-type = <PM_QOS_MAX_LIMIT>;
 				execution-mode = <AARCH64_MODE>;
 					/* big	    lit */
-				table = < 2288000 1794000
-				          2184000 1586000
+				table = < 2184000 1586000
 					  2080000 1586000
 					  1976000 1586000
 					  1872000 1586000
@@ -3098,10 +3093,7 @@
 					  1352000 1586000
 					  1144000 1352000
 					   936000 1248000
-					   728000 1248000 
-					   520000 1014000
-					   312000 1014000
-					   208000 1014000 >;
+					   728000 1248000 >;
 			};
 		};
 	};

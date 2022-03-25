@@ -404,13 +404,13 @@ config WAKE_BOOST_DURATION_MS
 
 config MAX_BOOST_FREQ_LP
 	int "Low-power cluster max-boost freq"
-	default "0"
+	default "1794000"
 	help
 	  Max-boost frequency for the low-power CPU cluster.
 
 config MAX_BOOST_FREQ_PERF
 	int "Performance cluster max-boost freq"
-	default "0"
+	default "2288000"
 	help
 	  Max-boost frequency for the performance CPU cluster.
 

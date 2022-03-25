@@ -666,8 +666,8 @@ LDFLAGS		+= -plugin LLVMgold.so
 endif
 # use llvm-ar for building symbol tables from IR files, and llvm-dis instead
 # of objdump for processing symbol versions and exports
-LLVM_AR		:= /home/alexandre/vortex-clang/bin/llvm-ar
-LLVM_NM		:= /home/alexandre/vortex-clang/bin/llvm-nm
+LLVM_AR		:= /home/alexandre/proton-clang/bin/llvm-ar
+LLVM_NM		:= /home/alexandre/proton-clang/bin/llvm-nm
 export LLVM_AR LLVM_NM
 # Set O3 optimization level for LTO
 LDFLAGS		+= --plugin-opt=O3

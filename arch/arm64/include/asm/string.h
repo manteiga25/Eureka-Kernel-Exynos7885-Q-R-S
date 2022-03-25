@@ -60,6 +60,9 @@ extern char *strcpy(char *,const char *);
 #define __HAVE_ARCH_STRCHRNUL
 extern char *strchrnul(const char *,int);
 
+#define __HAVE_ARCH_STPCPY
+extern char *stpcpy(char *,const char *);
+
 #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
 
 /*

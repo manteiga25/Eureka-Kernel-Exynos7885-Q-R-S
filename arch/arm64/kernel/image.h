@@ -110,7 +110,6 @@ __efistub_strnlen		= KALLSYMS_HIDE(__pi_strnlen);
 __efistub_strcmp		= KALLSYMS_HIDE(__pi_strcmp);
 __efistub_strncmp		= KALLSYMS_HIDE(__pi_strncmp);
 __efistub_strrchr		= KALLSYMS_HIDE(__pi_strrchr);
-__efistub_strchr		= KALLSYMS_HIDE(__pi_strchr);
 __efistub_strchrnul             = KALLSYMS_HIDE(__pi_strchrnul);
 __efistub_strcpy                = KALLSYMS_HIDE(__pi_strcpy);
 __efistub_stpcpy                = KALLSYMS_HIDE(__pi_stpcpy);

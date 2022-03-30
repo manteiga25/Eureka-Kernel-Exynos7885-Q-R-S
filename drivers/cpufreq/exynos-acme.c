@@ -1038,33 +1038,57 @@ static int init_constraint_table_dt(struct exynos_cpufreq_domain *domain,
 					= table[c_index].constraint_freq;
 
 			// Big cores' specific frequencies
-		 	for (bc_index = 0; bc_index <= 6; bc_index++) {
+		 	for (bc_index = 0; bc_index <= 2; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=2093000;
+			}
+			for (bc_index = 3; bc_index <= 3; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=2002000;
+			}
+			for (bc_index = 4; bc_index <= 4; bc_index++) {
 				if (freq == bc_freq[bc_index])
 					dm->c.freq_table[index].constraint_freq=1794000;
 			}
-			for (bc_index = 7; bc_index <= 8; bc_index++) {
+			for (bc_index = 5; bc_index <= 6; bc_index++) {
 				if (freq == bc_freq[bc_index])
 					dm->c.freq_table[index].constraint_freq=1539000;
 			}
-			for (bc_index = 9; bc_index <= 9; bc_index++) {
+			for (bc_index = 7; bc_index <= 7; bc_index++) {
 				if (freq == bc_freq[bc_index])
 					dm->c.freq_table[index].constraint_freq=1352000;
 			}
-			for (bc_index = 10; bc_index <= 10; bc_index++) {
+			for (bc_index = 8; bc_index <= 8; bc_index++) {
 				if (freq == bc_freq[bc_index])
-					dm->c.freq_table[index].constraint_freq=676000;
+					dm->c.freq_table[index].constraint_freq=1014000;
 			}
-			for (bc_index = 11; bc_index <= 12; bc_index++) {
+			for (bc_index = 9; bc_index <= 9; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=845000;
+			}
+			for (bc_index = 10; bc_index <= 10; bc_index++) {
 				if (freq == bc_freq[bc_index])
 					dm->c.freq_table[index].constraint_freq=546000;
 			}
-			for (bc_index = 13; bc_index <= 13; bc_index++) {
+			for (bc_index = 11; bc_index <= 13; bc_index++) {
 				if (freq == bc_freq[bc_index])
 					dm->c.freq_table[index].constraint_freq=420000;
 			}
 
 			// Little cores' specific frequencies
-		 	for (lc_index = 0; lc_index <= 6; lc_index++) {
+		 	for (lc_index = 0; lc_index <= 2; lc_index++) {
+				if (freq == lc_freq[lc_index])
+					dm->c.freq_table[index].constraint_freq=1794000;
+			}
+			for (lc_index = 3; lc_index <= 3; lc_index++) {
+				if (freq == lc_freq[lc_index])
+					dm->c.freq_table[index].constraint_freq=1539000;
+			}
+			for (lc_index = 4; lc_index <= 5; lc_index++) {
+				if (freq == lc_freq[lc_index])
+					dm->c.freq_table[index].constraint_freq=1352000;
+			}
+			for (lc_index = 6; lc_index <= 6; lc_index++) {
 				if (freq == lc_freq[lc_index])
 					dm->c.freq_table[index].constraint_freq=1014000;
 			}
@@ -1080,7 +1104,7 @@ static int init_constraint_table_dt(struct exynos_cpufreq_domain *domain,
 				if (freq == lc_freq[lc_index])
 					dm->c.freq_table[index].constraint_freq=546000;
 			}
-			for (lc_index = 12; lc_index <= 13; lc_index++) {
+			for (lc_index = 12; lc_index <= 14; lc_index++) {
 				if (freq == lc_freq[lc_index])
 					dm->c.freq_table[index].constraint_freq=420000;
 			}

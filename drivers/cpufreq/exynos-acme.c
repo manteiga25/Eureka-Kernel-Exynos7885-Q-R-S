@@ -1210,9 +1210,9 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 			domain->max_freq = ekval;
 #else
 		if (domain->id == 0) {
-			domain->max_freq = 1690000;
+			domain->max_freq = 1794000;
 		} else if (domain->id == 1) {
-	                domain->max_freq = 2080000;
+	                domain->max_freq = 2288000;
 		}
 #endif
 	}

@@ -30,6 +30,7 @@
 #include <linux/devfreq_cooling.h>
 #endif
 
+#include <linux/devfreq_boost.h>
 #include <linux/version.h>
 #include <linux/pm_opp.h>
 #include "mali_kbase_devfreq.h"

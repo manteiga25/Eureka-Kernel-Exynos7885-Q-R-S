@@ -271,6 +271,26 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
 		.matches = is_kryo_midr,
 	},
 #endif
+#ifdef CONFIG_ARM64_ERRATUM_858921
+	{
+	/* Cortex-A73 all versions */
+		.desc = "ARM erratum 858921",
+		.capability = ARM64_WORKAROUND_858921,
+		MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
+	},
+#endif
+       {
+       /* Cortex-A53 all versions */
+                .desc = "ARM erratum 835719",
+                .capability = ARM64_WORKAROUND_835719,
+                MIDR_RANGE(MIDR_CORTEX_A53, 0x00, 0x04),
+       },
+       {
+        /* Cortex-A53 all versions */
+                .desc = "ARM erratum 843419",
+                .capability = ARM64_WORKAROUND_843419,
+                MIDR_RANGE(MIDR_CORTEX_A53, 0x00, 0x04),
+        },
 #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
 	{
 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,

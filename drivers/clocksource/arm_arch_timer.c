@@ -438,6 +438,17 @@ static u64 arch_counter_get_cntvct_mem(void)
 	return ((u64) vct_hi << 32) | vct_lo;
 }
 
+#ifdef CONFIG_ARM64_ERRATUM_858921
+static u64 notrace arm64_858921_read_cntvct_el0(void)
+{
+	u64 old, new;
+
+	old = read_sysreg(cntvct_el0);
+	new = read_sysreg(cntvct_el0);
+	return (((old ^ new) >> 32) & 1) ? old : new;
+}
+#endif
+
 /*
  * Default to cp15 based access because arm64 uses this function for
  * sched_clock() before DT is probed and the cp15 method is guaranteed
@@ -536,7 +547,14 @@ static void arch_timer_stop(struct clock_event_device *clk)
 
 	clk->set_state_shutdown(clk);
 }
-
+#ifdef CONFIG_ARM64_ERRATUM_858921
+	{
+		.match_type = ate_match_local_cap_id,
+		.id = (void *)ARM64_WORKAROUND_858921,
+		.desc = "ARM erratum 858921",
+		.read_cntvct_el0 = arm64_858921_read_cntvct_el0,
+	},
+#endif
 static int arch_timer_cpu_notify(struct notifier_block *self,
 					   unsigned long action, void *hcpu)
 {

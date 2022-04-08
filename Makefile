@@ -707,7 +707,7 @@ ifeq ($(cc-name),clang)
 # Add Some optimization flags for clang
 KBUILD_CFLAGS	+= -fomit-frame-pointer -pipe \
 -ffunction-sections \
--ffp-model=fast -foptimize-sibling-calls
+-ffp-model=fast -foptimize-sibling-calls -mfix-cortex-a53-835769
 
 # Enable Clang Polly optimizations
 KBUILD_CFLAGS	+= -mllvm -polly \
@@ -852,7 +852,7 @@ KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
 ifdef CONFIG_FRAME_POINTER
-KBUILD_CFLAGS	+= -fomit-frame-pointer -foptimize-sibling-calls
+KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
 else
 # Some targets (ARM with Thumb2, for example), can't be built with frame
 # pointers.  For those, we don't have FUNCTION_TRACER automatically

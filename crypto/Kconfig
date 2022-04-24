@@ -2,7 +2,8 @@
 # Generic algorithms support
 #
 config XOR_BLOCKS
-	tristate
+	tristate "optimize rountine?"
+	default y
 
 #
 # async_tx api: hardware offloaded memory transfer/transform support

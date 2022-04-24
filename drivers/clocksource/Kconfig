@@ -166,9 +166,12 @@ config ARM_ARCH_TIMER_VCT_ACCESS
 	  This option enables support for reading the ARM architected timer's
 	  virtual counter in userspace.
 
+config ARM_ARCH_TIMER_OOL_WORKAROUND
+	bool
+
 config ARM64_ERRATUM_858921
 	bool "Workaround for Cortex-A73 erratum 858921"
-	default n
+	default y
 	select ARM_ARCH_TIMER_OOL_WORKAROUND
 	depends on ARM_ARCH_TIMER && ARM64
 	help

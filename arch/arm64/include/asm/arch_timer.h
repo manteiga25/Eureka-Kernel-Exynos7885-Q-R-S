@@ -27,6 +27,34 @@
 
 #include <clocksource/arm_arch_timer.h>
 
+#if IS_ENABLED(CONFIG_ARM_ARCH_TIMER_OOL_WORKAROUND)
+extern struct static_key_false arch_timer_read_ool_enabled;
+#define needs_unstable_timer_counter_workaround() \
+	static_branch_unlikely(&arch_timer_read_ool_enabled)
+#else
+#define needs_unstable_timer_counter_workaround()  false
+#endif
+
+enum arch_timer_erratum_match_type {
+	ate_match_dt,
+	ate_match_local_cap_id,
+};
+
+struct clock_event_device;
+
+struct arch_timer_erratum_workaround {
+	enum arch_timer_erratum_match_type match_type;
+	const void *id;
+	const char *desc;
+	u32 (*read_cntp_tval_el0)(void);
+	u32 (*read_cntv_tval_el0)(void);
+	u64 (*read_cntvct_el0)(void);
+	int (*set_next_event_phys)(unsigned long, struct clock_event_device *);
+	int (*set_next_event_virt)(unsigned long, struct clock_event_device *);
+};
+
+extern const struct arch_timer_erratum_workaround *timer_unstable_counter_workaround;
+
 /*
  * These register accessors are marked inline so the compiler can
  * nicely work out which register we want, and chuck away the rest of

@@ -71,6 +71,7 @@ static bool arch_timer_use_virtual = true;
 static bool arch_timer_c3stop;
 static bool arch_timer_mem_use_virtual;
 static bool arch_timer_use_clocksource_only = false;
+static bool arch_counter_suspend_stop;
 
 /*
  * Architected system timer support.
@@ -182,6 +183,23 @@ static irqreturn_t arch_timer_handler_virt_mem(int irq, void *dev_id)
 	return timer_handler(ARCH_TIMER_MEM_VIRT_ACCESS, evt);
 }
 
+#ifdef CONFIG_ARM64_ERRATUM_858921
+static u64 notrace arm64_858921_read_cntvct_el0(void)
+{
+	u64 old, new;
+
+	old = read_sysreg(cntvct_el0);
+	new = read_sysreg(cntvct_el0);
+	return (((old ^ new) >> 32) & 1) ? old : new;
+}
+#endif
+
+#ifdef CONFIG_ARM_ARCH_TIMER_OOL_WORKAROUND
+const struct arch_timer_erratum_workaround *timer_unstable_counter_workaround = NULL;
+EXPORT_SYMBOL_GPL(timer_unstable_counter_workaround);
+DEFINE_STATIC_KEY_FALSE(arch_timer_read_ool_enabled);
+EXPORT_SYMBOL_GPL(arch_timer_read_ool_enabled);
+
 static __always_inline int timer_shutdown(const int access,
 					  struct clock_event_device *clk)
 {
@@ -214,6 +232,117 @@ static int arch_timer_shutdown_phys_mem(struct clock_event_device *clk)
 	return timer_shutdown(ARCH_TIMER_MEM_PHYS_ACCESS, clk);
 }
 
+static const struct arch_timer_erratum_workaround ool_workarounds[] = {
+#ifdef CONFIG_ARM64_ERRATUM_858921
+	{
+		.match_type = ate_match_local_cap_id,
+		.id = (void *)ARM64_WORKAROUND_858921,
+		.desc = "ARM erratum 858921",
+		.read_cntvct_el0 = arm64_858921_read_cntvct_el0,
+	},
+#endif
+};
+
+typedef bool (*ate_match_fn_t)(const struct arch_timer_erratum_workaround *,
+			       const void *);
+
+static
+bool arch_timer_check_dt_erratum(const struct arch_timer_erratum_workaround *wa,
+				 const void *arg)
+{
+	const struct device_node *np = arg;
+
+	return of_property_read_bool(np, wa->id);
+}
+
+static
+bool arch_timer_check_local_cap_erratum(const struct arch_timer_erratum_workaround *wa,
+					const void *arg)
+{
+	return this_cpu_has_cap((uintptr_t)wa->id);
+}
+
+static const struct arch_timer_erratum_workaround *
+arch_timer_iterate_errata(enum arch_timer_erratum_match_type type,
+			  ate_match_fn_t match_fn,
+			  void *arg)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(ool_workarounds); i++) {
+		if (ool_workarounds[i].match_type != type)
+			continue;
+
+		if (match_fn(&ool_workarounds[i], arg))
+			return &ool_workarounds[i];
+	}
+
+	return NULL;
+}
+
+static
+void arch_timer_enable_workaround(const struct arch_timer_erratum_workaround *wa)
+{
+	timer_unstable_counter_workaround = wa;
+	static_branch_enable(&arch_timer_read_ool_enabled);
+}
+
+static void arch_timer_check_ool_workaround(enum arch_timer_erratum_match_type type,
+					    void *arg)
+{
+	const struct arch_timer_erratum_workaround *wa;
+	ate_match_fn_t match_fn = NULL;
+
+	bool local = false;
+
+	switch (type) {
+	case ate_match_dt:
+		match_fn = arch_timer_check_dt_erratum;
+		break;
+	case ate_match_local_cap_id:
+		match_fn = arch_timer_check_local_cap_erratum;
+		local = true;
+		break;
+	default:
+		WARN_ON(1);
+		return;
+	}
+
+	wa = arch_timer_iterate_errata(type, match_fn, arg);
+	if (!wa)
+		return;
+		
+	if (needs_unstable_timer_counter_workaround()) {
+		if (wa != timer_unstable_counter_workaround)
+			pr_warn("Can't enable workaround for %s (clashes with %s\n)",
+				wa->desc,
+				timer_unstable_counter_workaround->desc);
+		return;
+	}
+
+	arch_timer_enable_workaround(wa);
+	pr_info("Enabling %s workaround for %s\n",
+		local ? "local" : "global", wa->desc);
+}
+
+#define erratum_handler(fn, r, ...)					\
+({									\
+	bool __val;							\
+	if (needs_unstable_timer_counter_workaround() &&		\
+	    timer_unstable_counter_workaround->fn) {			\
+		r = timer_unstable_counter_workaround->fn(__VA_ARGS__);	\
+		__val = true;						\
+	} else {							\
+		__val = false;						\
+	}								\
+	__val;								\
+})
+
+#else
+#define arch_timer_check_ool_workaround(t,a)		do { } while(0)
+#define erratum_handler(fn, r, ...)		({false;})
+#endif /* CONFIG_ARM_ARCH_TIMER_OOL_WORKAROUND */
+
 static __always_inline void set_next_event(const int access, unsigned long evt,
 					   struct clock_event_device *clk)
 {
@@ -228,6 +357,11 @@ static __always_inline void set_next_event(const int access, unsigned long evt,
 static int arch_timer_set_next_event_virt(unsigned long evt,
 					  struct clock_event_device *clk)
 {
+        int ret;
+
+	if (erratum_handler(set_next_event_virt, ret, evt, clk))
+		return ret;
+
 	set_next_event(ARCH_TIMER_VIRT_ACCESS, evt, clk);
 	return 0;
 }
@@ -235,6 +369,11 @@ static int arch_timer_set_next_event_virt(unsigned long evt,
 static int arch_timer_set_next_event_phys(unsigned long evt,
 					  struct clock_event_device *clk)
 {
+        int ret;
+
+	if (erratum_handler(set_next_event_phys, ret, evt, clk))
+		return ret;
+
 	set_next_event(ARCH_TIMER_PHYS_ACCESS, evt, clk);
 	return 0;
 }
@@ -273,6 +412,9 @@ static void __arch_timer_setup(unsigned type,
 			clk->set_state_shutdown = arch_timer_shutdown_phys;
 			clk->set_next_event = arch_timer_set_next_event_phys;
 		}
+		
+		arch_timer_check_ool_workaround(ate_match_local_cap_id, NULL);
+		
 	} else {
 		clk->features |= CLOCK_EVT_FEAT_DYNIRQ;
 		clk->name = "arch_mem_timer";
@@ -438,17 +580,6 @@ static u64 arch_counter_get_cntvct_mem(void)
 	return ((u64) vct_hi << 32) | vct_lo;
 }
 
-#ifdef CONFIG_ARM64_ERRATUM_858921
-static u64 notrace arm64_858921_read_cntvct_el0(void)
-{
-	u64 old, new;
-
-	old = read_sysreg(cntvct_el0);
-	new = read_sysreg(cntvct_el0);
-	return (((old ^ new) >> 32) & 1) ? old : new;
-}
-#endif
-
 /*
  * Default to cp15 based access because arm64 uses this function for
  * sched_clock() before DT is probed and the cp15 method is guaranteed
@@ -503,17 +634,24 @@ static void __init arch_counter_register(unsigned type)
 			arch_timer_read_counter = arch_counter_get_cntvct;
 		else
 			arch_timer_read_counter = arch_counter_get_cntpct;
+			
+		clocksource_counter.archdata.vdso_direct = true;
+
+#ifdef CONFIG_ARM_ARCH_TIMER_OOL_WORKAROUND
+		/*
+		 * Don't use the vdso fastpath if errata require using
+		 * the out-of-line counter accessor.
+		 */
+		if (static_branch_unlikely(&arch_timer_read_ool_enabled))
+			clocksource_counter.archdata.vdso_direct = false;
+#endif	
 	} else {
 		arch_timer_read_counter = arch_counter_get_cntvct_mem;
-
-		/* If the clocksource name is "arch_sys_counter" the
-		 * VDSO will attempt to read the CP15-based counter.
-		 * Ensure this does not happen when CP15-based
-		 * counter is not available.
-		 */
-		clocksource_counter.name = "arch_mem_counter";
 	}
 
+
+        if (!arch_counter_suspend_stop)
+		clocksource_counter.flags |= CLOCK_SOURCE_SUSPEND_NONSTOP;
 	start_count = arch_timer_read_counter();
 	clocksource_register_hz(&clocksource_counter, arch_timer_rate);
 	cyclecounter.mult = clocksource_counter.mult;
@@ -547,14 +685,7 @@ static void arch_timer_stop(struct clock_event_device *clk)
 
 	clk->set_state_shutdown(clk);
 }
-#ifdef CONFIG_ARM64_ERRATUM_858921
-	{
-		.match_type = ate_match_local_cap_id,
-		.id = (void *)ARM64_WORKAROUND_858921,
-		.desc = "ARM erratum 858921",
-		.read_cntvct_el0 = arm64_858921_read_cntvct_el0,
-	},
-#endif
+
 static int arch_timer_cpu_notify(struct notifier_block *self,
 					   unsigned long action, void *hcpu)
 {
@@ -800,6 +931,10 @@ static void __init arch_timer_of_init(struct device_node *np)
 	if (IS_ENABLED(CONFIG_ARM) &&
 	    of_property_read_bool(np, "arm,cpu-registers-not-fw-configured"))
 			arch_timer_use_virtual = false;
+			
+	/* On some systems, the counter stops ticking when in suspend. */
+	arch_counter_suspend_stop = of_property_read_bool(np,
+							 "arm,no-tick-in-suspend");
 
 	arch_timer_init();
 }
@@ -924,6 +1059,9 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
 
 	/* Always-on capability */
 	arch_timer_c3stop = !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+	
+	/* Check for globally applicable workarounds */
+	arch_timer_check_ool_workaround(ate_match_dt, np);
 
 	arch_timer_init();
 	return 0;

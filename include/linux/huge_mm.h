@@ -168,7 +168,7 @@ static inline struct page *compound_trans_head(struct page *page)
 {
 	if (PageTail(page)) {
 		struct page *head;
-		head = page->first_page;
+		head = page;
 		smp_rmb();
 		/*
 		 * head may be a dangling pointer.

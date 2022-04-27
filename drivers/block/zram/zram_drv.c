@@ -2080,8 +2080,8 @@ static ssize_t mm_stat_show(struct device *dev,
 			(u64)atomic64_read(&zram->stats.same_pages),
 			pool_stats.pages_compacted,
 			zram_dedup_dup_size(zram),
-			zram_dedup_meta_size(zram));
-			(u64)atomic64_read(&zram->stats.huge_pages);
+			zram_dedup_meta_size(zram),
+			(u64)atomic64_read(&zram->stats.huge_pages));
 	up_read(&zram->init_lock);
 
 	return ret;

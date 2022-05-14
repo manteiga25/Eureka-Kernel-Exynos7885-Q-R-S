@@ -1428,8 +1428,6 @@ static ssize_t writeback_store(struct device *dev,
 
 	if (!strcmp(mode_buf, "idle"))
 		mode = IDLE_WRITEBACK;
-	else if (!strcmp(mode_buf, "huge"))
-		mode = HUGE_WRITEBACK;
 
 	if (mode == -1)
 		return -EINVAL;

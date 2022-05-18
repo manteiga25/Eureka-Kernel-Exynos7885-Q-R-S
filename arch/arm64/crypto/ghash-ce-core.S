@@ -28,7 +28,7 @@
 	 * void pmull_ghash_update(int blocks, u64 dg[], const char *src,
 	 *			   struct ghash_key const *k, const char *head)
 	 */
-ENTRY(pmull_ghash_update)
+SYM_FUNC_START(pmull_ghash_update)
 	ld1		{SHASH.2d}, [x3]
 	ld1		{XL.2d}, [x1]
 	movi		MASK.16b, #0xe1
@@ -76,4 +76,4 @@ CPU_LE(	rev64		T1.16b, T1.16b	)
 
 	st1		{XL.2d}, [x1]
 	ret
-ENDPROC(pmull_ghash_update)
+SYM_FUNC_END(pmull_ghash_update)

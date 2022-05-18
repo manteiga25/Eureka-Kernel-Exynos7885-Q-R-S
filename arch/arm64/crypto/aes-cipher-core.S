@@ -117,11 +117,11 @@ CPU_BE(	rev		w8, w8		)
 	.endm
 
 	.align		5
-ENTRY(__aes_arm64_encrypt)
+SYM_FUNC_START(__aes_arm64_encrypt)
 	do_crypt	fround, crypto_ft_tab, crypto_fl_tab
-ENDPROC(__aes_arm64_encrypt)
+SYM_FUNC_END(__aes_arm64_encrypt)
 
 	.align		5
-ENTRY(__aes_arm64_decrypt)
+SYM_FUNC_START(__aes_arm64_decrypt)
 	do_crypt	iround, crypto_it_tab, crypto_il_tab
-ENDPROC(__aes_arm64_decrypt)
+SYM_FUNC_END(__aes_arm64_decrypt)

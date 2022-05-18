@@ -36,7 +36,7 @@
  *			       const u8 *src, unsigned int blocks,
  *			       unsigned int partial);
  */
-ENTRY(pmull_poly_hash_update)
+SYM_FUNC_START(pmull_poly_hash_update)
 
 	/* Load digest into XL */
 	ld1		{XL.16b}, [x0]
@@ -160,4 +160,4 @@ ENTRY(pmull_poly_hash_update)
 	cbnz		w3, 0b
 	st1		{XL.16b}, [x0]
 	ret
-ENDPROC(pmull_poly_hash_update)
+SYM_FUNC_END(pmull_poly_hash_update)

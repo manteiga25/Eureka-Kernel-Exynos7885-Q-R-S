@@ -31,6 +31,9 @@ obj-$(CONFIG_ARM64_EXYNOS_CPUIDLE)	+= cpuidle_profiler.o
 # USI
 obj-$(CONFIG_USI) += usi.o
 
+# xperf
+obj-y += xperf/
+
 # ACPM
 obj-$(CONFIG_EXYNOS_ACPM)       += acpm/
 

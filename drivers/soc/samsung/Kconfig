@@ -175,6 +175,7 @@ config EXYNOS_CONTENT_PATH_PROTECTION
 
 source "drivers/soc/samsung/acpm/Kconfig"
 source "drivers/soc/samsung/exynos-hdcp/Kconfig"
+source "drivers/soc/samsung/xperf/Kconfig"
 
 config EXYNOS_MCINFO
 	bool "Exynos memory controller information"

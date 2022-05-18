@@ -54,14 +54,13 @@ extern void *__memmove(void *, const void *, __kernel_size_t);
 extern void *memset(void *, int, __kernel_size_t);
 extern void *__memset(void *, int, __kernel_size_t);
 
-#define __HAVE_ARCH_STRCPY
-extern char *strcpy(char *,const char *);
-
 #define __HAVE_ARCH_STRCHRNUL
 extern char *strchrnul(const char *,int);
 
-#define __HAVE_ARCH_STPCPY
-extern char *stpcpy(char *,const char *);
+#ifdef CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE
+#define __HAVE_ARCH_MEMCPY_FLUSHCACHE
+void memcpy_flushcache(void *dst, const void *src, size_t cnt);
+#endif
 
 #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
 
@@ -73,6 +72,11 @@ extern char *stpcpy(char *,const char *);
 #define memcpy(dst, src, len) __memcpy(dst, src, len)
 #define memmove(dst, src, len) __memmove(dst, src, len)
 #define memset(s, c, n) __memset(s, c, n)
+
+#ifndef __NO_FORTIFY
+#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
+#endif
+
 #endif
 
 #endif

@@ -168,7 +168,7 @@ static void *__dma_alloc(struct device *dev, size_t size,
 		return ptr;
 
 	/* remove any dirty cache lines on the kernel alias */
-	__dma_flush_range(ptr, ptr + size);
+        __dma_flush_range(ptr, ptr + size);
 
 	/* create a coherent mapping */
 	page = virt_to_page(ptr);

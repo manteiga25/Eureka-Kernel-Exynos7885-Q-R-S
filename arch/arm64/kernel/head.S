@@ -257,8 +257,13 @@ preserve_boot_args:
 	dmb	sy				// needed before dc ivac with
 						// MMU off
 
+#ifdef CONFIG_ARCH_HAS_PMEM_API
+        mov	x1, #0x20			// 4 x 8 bytes
+	b	__inval_dcache_area		// tail call
+#else
 	add	x1, x0, #0x20			// 4 x 8 bytes
 	b	__inval_cache_range		// tail call
+#endif
 ENDPROC(preserve_boot_args)
 
 /*
@@ -337,20 +342,34 @@ __create_page_tables:
 	 * dirty cache lines being evicted.
 	 */
 	mov	x0, x25
+#ifdef CONFIG_ARCH_HAS_PMEM_API
+        ldr	x1, =(IDMAP_DIR_SIZE + SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE)
+	bl	__inval_dcache_area
+#else
 	add	x1, x26, #SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE
 	bl	__inval_cache_range
+#endif
 
 	/*
 	 * Clear the idmap and swapper page tables.
 	 */
 	mov	x0, x25
-	add	x6, x26, #SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE
+#ifdef CONFIG_ARCH_HAS_PMEM_API
+	ldr	x1, =(IDMAP_DIR_SIZE + SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE)
+#else
+        add	x6, x26, #SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE
+#endif
 1:	stp	xzr, xzr, [x0], #16
 	stp	xzr, xzr, [x0], #16
 	stp	xzr, xzr, [x0], #16
 	stp	xzr, xzr, [x0], #16
+#ifdef CONFIG_ARCH_HAS_PMEM_API
+	subs	x1, x1, #64
+	b.ne	1b
+#else
 	cmp	x0, x6
 	b.lo	1b
+#endif
 
 	ldr	x7, =SWAPPER_MM_MMUFLAGS
 
@@ -422,9 +441,17 @@ __create_page_tables:
 	 * tables again to remove any speculatively loaded cache lines.
 	 */
 	mov	x0, x25
+#ifdef CONFIG_ARCH_HAS_PMEM_API
+	ldr	x1, =(IDMAP_DIR_SIZE + SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE)
+#else
 	add	x1, x26, #SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE
+#endif
 	dmb	sy
+#ifdef CONFIG_ARCH_HAS_PMEM_API
+	bl	__inval_dcache_area
+#else
 	bl	__inval_cache_range
+#endif
 
 	ret	x28
 ENDPROC(__create_page_tables)
@@ -549,9 +576,27 @@ CPU_LE(	bic	x0, x0, #(3 << 24)	)	// Clear the EE and E0E bits for EL1
 	isb
 	ret
 
+2:
+#ifdef CONFIG_ARM64_VHE
+	/*
+	 * Check for VHE being present. For the rest of the EL2 setup,
+	 * x2 being non-zero indicates that we do have VHE, and that the
+	 * kernel is intended to run at EL2.
+	 */
+	mrs	x2, id_aa64mmfr1_el1
+	ubfx	x2, x2, #8, #4
+#else
+	mov	x2, xzr
+#endif
+
 	/* Hyp configuration. */
-2:	mov_q	x0, HCR_HOST_NVHE_FLAGS
+        mov	x0, #HCR_RW			// 64-bit EL1
+	cbz	x2, set_hcr
+	orr	x0, x0, #HCR_TGE		// Enable Host Extensions
+	orr	x0, x0, #HCR_E2H
+set_hcr:
 	msr	hcr_el2, x0
+	isb
 
 	/* Generic timers. */
 	mrs	x0, cnthctl_el2
@@ -610,7 +655,14 @@ CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
 
 	/* Stage-2 translation */
 	msr	vttbr_el2, xzr
+	
+	cbz	x2, install_el2_stub
 
+	mov	w20, #BOOT_CPU_MODE_EL2		// This CPU booted in EL2
+	isb
+	ret
+
+install_el2_stub:
 	/* Hypervisor stub */
 	adrp	x0, __hyp_stub_vectors
 	add	x0, x0, #:lo12:__hyp_stub_vectors

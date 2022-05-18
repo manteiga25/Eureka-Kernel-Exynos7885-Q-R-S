@@ -29,15 +29,15 @@
  *		  unsigned long a3, unsigned long a4, unsigned long a5,
  *		  unsigned long a6, unsigned long a7, struct arm_smccc_res *res)
  */
-ENTRY(arm_smccc_smc)
+SYM_FUNC_START(arm_smccc_smc)
 	SMCCC	smc
-ENDPROC(arm_smccc_smc)
+SYM_FUNC_END(arm_smccc_smc)
 
 /*
  * void arm_smccc_hvc(unsigned long a0, unsigned long a1, unsigned long a2,
  *		  unsigned long a3, unsigned long a4, unsigned long a5,
  *		  unsigned long a6, unsigned long a7, struct arm_smccc_res *res)
  */
-ENTRY(arm_smccc_hvc)
+SYM_FUNC_START(arm_smccc_hvc)
 	SMCCC	hvc
-ENDPROC(arm_smccc_hvc)
+SYM_FUNC_END(arm_smccc_hvc)

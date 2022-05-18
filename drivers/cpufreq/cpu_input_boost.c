@@ -5,6 +5,7 @@
 
 #define pr_fmt(fmt) "cpu_input_boost: " fmt
 
+#include <linux/battery_saver.h>
 #include <linux/cpu.h>
 #include <linux/cpufreq.h>
 #include <linux/input.h>
@@ -154,12 +155,12 @@ static int cpu_notifier_cb(struct notifier_block *nb, unsigned long action,
 	if (action != CPUFREQ_ADJUST)
 		return NOTIFY_OK;
 
-	/* Unboost when the screen is off */
-	if (test_bit(SCREEN_OFF, &b->state))
+	/* Unboost when the screen is off and unboost if battery save mode is enabled */
+	if (test_bit(SCREEN_OFF, &b->state) || is_battery_saver_on())
 		goto min;
 
 	/* Boost CPU to max frequency for max boost */
-	if (test_bit(MAX_BOOST, &b->state)) {
+	if (test_bit(MAX_BOOST, &b->state) || !is_battery_saver_on()) {
 		policy->min = get_max_boost_freq(policy);
 		return NOTIFY_OK;
 	}
@@ -181,7 +182,7 @@ static int fb_notifier_cb(struct notifier_block *nb, unsigned long action,
 		return NOTIFY_OK;
 
 	/* Boost when the screen turns on and unboost when it turns off */
-	if (*blank == FB_BLANK_UNBLANK) {
+	if (*blank == FB_BLANK_UNBLANK || !is_battery_saver_on()) {
 		clear_bit(SCREEN_OFF, &b->state);
 		__cpu_input_boost_kick_max(b, CONFIG_WAKE_BOOST_DURATION_MS);
 	} else {

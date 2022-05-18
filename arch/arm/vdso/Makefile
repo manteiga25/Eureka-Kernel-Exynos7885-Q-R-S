@@ -24,7 +24,7 @@ CFLAGS_REMOVE_vdso.o = -pg
 
 # Force -O2 to avoid libgcc dependencies
 CFLAGS_REMOVE_vgettimeofday.o = -pg -Os
-CFLAGS_vgettimeofday.o = -O3 -mllvm -polly -mcpu=cortex-a53
+CFLAGS_vgettimeofday.o = -O3 -mllvm -polly
 
 # Disable gcov, kasan, ubsan and kcov profiling for VDSO code
 GCOV_PROFILE := n

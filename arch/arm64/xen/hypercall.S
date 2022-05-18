@@ -83,7 +83,7 @@ HYPERCALL3(vcpu_op);
 HYPERCALL1(tmem_op);
 HYPERCALL2(multicall);
 
-ENTRY(privcmd_call)
+SYM_FUNC_START(privcmd_call)
 	mov x16, x0
 	mov x0, x1
 	mov x1, x2
@@ -106,4 +106,4 @@ ENTRY(privcmd_call)
 	 */
 	uaccess_ttbr0_disable x6, x7
 	ret
-ENDPROC(privcmd_call);
+SYM_FUNC_END(privcmd_call);

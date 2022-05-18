@@ -695,8 +695,8 @@ else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3_OFAST_SUB_OPTIONS
 KBUILD_CFLAGS   += -O3 -fno-signed-zeros -fassociative-math -fno-trapping-math -freciprocal-math -fno-math-errno $(call cc-disable-warning,maybe-uninitialized,)
 KBUILD_CPPFLAGS += -O3
 KBUILD_AFLAGS   += -O3 -mcpu=cortex-a53
-LDFLAGS         += -O3
-KBUILD_LDFLAGS  += -O3
+LDFLAGS         += --lto-O3 -O3
+KBUILD_LDFLAGS  += --lto--O3 -O3
 else ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O3 $(call cc-disable-warning,maybe-uninitialized,)
 else

@@ -1032,7 +1032,7 @@ menu "ARMv8.2 architectural features"
 
 config ARM64_UAO
 	bool "Enable support for User Access Override (UAO)"
-	default n
+	default y
 	help
 	  User Access Override (UAO; part of the ARMv8.2 Extensions)
 	  causes the 'unprivileged' variant of the load/store instructions to

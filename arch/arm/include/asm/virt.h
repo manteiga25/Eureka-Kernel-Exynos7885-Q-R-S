@@ -74,6 +74,17 @@ static inline bool is_hyp_mode_mismatched(void)
 {
 	return !!(__boot_cpu_mode & BOOT_CPU_MODE_MISMATCH);
 }
+
+static inline bool is_kernel_in_hyp_mode(void)
+{
+	return false;
+}
+
+static inline bool has_vhe(void)
+{
+	return false;
+}
+
 #endif
 
 #endif /* __ASSEMBLY__ */

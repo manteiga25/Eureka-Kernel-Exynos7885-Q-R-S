@@ -257,7 +257,7 @@ preserve_boot_args:
 	dmb	sy				// needed before dc ivac with
 						// MMU off
 
-#ifdef CONFIG_ARCH_HAS_PMEM_API
+#ifdef CONFIG_ARM64_PMEM
         mov	x1, #0x20			// 4 x 8 bytes
 	b	__inval_dcache_area		// tail call
 #else
@@ -342,7 +342,7 @@ __create_page_tables:
 	 * dirty cache lines being evicted.
 	 */
 	mov	x0, x25
-#ifdef CONFIG_ARCH_HAS_PMEM_API
+#ifdef CONFIG_ARM64_PMEM
         ldr	x1, =(IDMAP_DIR_SIZE + SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE)
 	bl	__inval_dcache_area
 #else
@@ -354,7 +354,7 @@ __create_page_tables:
 	 * Clear the idmap and swapper page tables.
 	 */
 	mov	x0, x25
-#ifdef CONFIG_ARCH_HAS_PMEM_API
+#ifdef CONFIG_ARM64_PMEM
 	ldr	x1, =(IDMAP_DIR_SIZE + SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE)
 #else
         add	x6, x26, #SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE
@@ -363,7 +363,7 @@ __create_page_tables:
 	stp	xzr, xzr, [x0], #16
 	stp	xzr, xzr, [x0], #16
 	stp	xzr, xzr, [x0], #16
-#ifdef CONFIG_ARCH_HAS_PMEM_API
+#ifdef CONFIG_ARM64_PMEM
 	subs	x1, x1, #64
 	b.ne	1b
 #else
@@ -441,13 +441,13 @@ __create_page_tables:
 	 * tables again to remove any speculatively loaded cache lines.
 	 */
 	mov	x0, x25
-#ifdef CONFIG_ARCH_HAS_PMEM_API
+#ifdef CONFIG_ARM64_PMEM
 	ldr	x1, =(IDMAP_DIR_SIZE + SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE)
 #else
 	add	x1, x26, #SWAPPER_DIR_SIZE + RESERVED_TTBR0_SIZE
 #endif
 	dmb	sy
-#ifdef CONFIG_ARCH_HAS_PMEM_API
+#ifdef CONFIG_ARM64_PMEM
 	bl	__inval_dcache_area
 #else
 	bl	__inval_cache_range
@@ -627,6 +627,15 @@ set_hcr:
 	mrs	x1, mpidr_el1
 	msr	vpidr_el2, x0
 	msr	vmpidr_el2, x1
+	
+	/*
+	 * When VHE is not in use, early init of EL2 and EL1 needs to be
+	 * done here.
+	 * When VHE _is_ in use, EL1 will not be used in the host and
+	 * requires no configuration, and all non-hyp-specific EL2 setup
+	 * will be done via the _EL1 system register aliases in __cpu_setup.
+	 */
+	cbnz	x2, 1f
 
 	/* sctlr_el1 */
 	mov	x0, #0x0800			// Set/clear RES{1,0} bits
@@ -637,6 +646,7 @@ CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
 	/* Coprocessor traps. */
 	mov	x0, #0x33ff
 	msr	cptr_el2, x0			// Disable copro. traps to EL2
+1:
 
 #ifdef CONFIG_COMPAT
 	msr	hstr_el2, xzr			// Disable CP15 traps to EL2

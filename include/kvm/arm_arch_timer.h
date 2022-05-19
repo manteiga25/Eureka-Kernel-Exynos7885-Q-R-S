@@ -73,5 +73,5 @@ int kvm_arm_timer_set_reg(struct kvm_vcpu *, u64 regid, u64 value);
 bool kvm_timer_should_fire(struct kvm_vcpu *vcpu);
 void kvm_timer_schedule(struct kvm_vcpu *vcpu);
 void kvm_timer_unschedule(struct kvm_vcpu *vcpu);
-
+void kvm_timer_init_vhe(void);
 #endif

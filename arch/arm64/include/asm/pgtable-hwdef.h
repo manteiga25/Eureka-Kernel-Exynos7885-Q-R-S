@@ -16,6 +16,8 @@
 #ifndef __ASM_PGTABLE_HWDEF_H
 #define __ASM_PGTABLE_HWDEF_H
 
+#include <asm/memory.h>
+
 /*
  * Number of page-table levels required to address 'va_bits' wide
  * address, without section mapping. We resolve the top (va_bits - PAGE_SHIFT)
@@ -192,6 +194,14 @@
 #define PMD_HYP			PMD_SECT_USER
 #define PTE_HYP			PTE_USER
 
+#define PTE_ADDR_LOW		(((_AT(pteval_t, 1) << (48 - PAGE_SHIFT)) - 1) << PAGE_SHIFT)
+#ifdef CONFIG_ARM64_PA_BITS_52
+#define PTE_ADDR_HIGH		(_AT(pteval_t, 0xf) << 12)
+#define PTE_ADDR_MASK		(PTE_ADDR_LOW | PTE_ADDR_HIGH)
+#else
+#define PTE_ADDR_MASK		PTE_ADDR_LOW
+#endif
+
 /*
  * Highest possible physical address supported.
  */
@@ -225,10 +235,23 @@
 #define TCR_TG1_4K		(UL(2) << 30)
 #define TCR_TG1_64K		(UL(3) << 30)
 
+#define TCR_IPS_SHIFT		32
+#define TCR_IPS_MASK		(UL(7) << TCR_IPS_SHIFT)
 #define TCR_A1			(UL(1) << 22)
 #define TCR_ASID16		(UL(1) << 36)
 #define TCR_TBI0		(UL(1) << 37)
 #define TCR_HA			(UL(1) << 39)
 #define TCR_HD			(UL(1) << 40)
+
+/*
+ * TTBR.
+ */
+#ifdef CONFIG_ARM64_PA_BITS_52
+/*
+ * This should be GENMASK_ULL(47, 2).
+ * TTBR_ELx[1] is RES0 in this configuration.
+ */
+#define TTBR_BADDR_MASK_52	(((UL(1) << 46) - 1) << 2)
+#endif
 
 #endif

@@ -308,7 +308,7 @@
 
 			eureka_min-freq = <208000>;
 			eureka_max-freq = <1794000>;
-			eureka_pm_qos-booting = <1794000>;
+			eureka_pm_qos-booting = <1690000>;
 			eureka_user-default-qos = <902000>;
 
 			/* PM QoS Class ID*/
@@ -357,7 +357,7 @@
 
 			eureka_min-freq = <208000>;
 			eureka_max-freq = <2288000>;
-			eureka_pm_qos-booting = <2288000>;
+			eureka_pm_qos-booting = <2080000>;
 			eureka_user-default-qos = <1144000>;
 
 			/* PM QoS Class ID*/

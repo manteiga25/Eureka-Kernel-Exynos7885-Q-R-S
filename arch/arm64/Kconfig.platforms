@@ -196,6 +196,12 @@ config SOC_EXYNOS7884A
 	help
 	  This enables support for LushanA (A73/A53)
 
+config SOC_EXYNOS7904
+        bool "Samsung EXYNOS7904"
+        default n
+        help
+          (A73/A53)
+
 config ARCH_EXYNOS7
 	bool "SAMSUNG EXYNOS7"
 	select HAVE_ARM_SCU if SMP

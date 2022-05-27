@@ -3,10 +3,9 @@
 * update driver Powersuspend v1.8 to v2.0
 * added crc32 optimized routine
 * implemented optimized checksum routine (has a 4x transfer boost in cortex a53)
-* added neon accelerator XOR implementation (can have a performance increase of up to 20%)
 * added arm64_lse_atomic instructions for increased performance in atomic operations (only arm64 roms)
 * optimize memchr, memcpy, memmove, memset, copy_page, memcmp, strcmp, strlen
-* added strchrnul, strcpy and stpcpy optimized rountine
+* added strchrnul optimized rountine
 * added support for clang INT128 bit
 * some memory optimizations
 * removed various debugs
@@ -22,10 +21,16 @@
 * Eliminated dead code
 * Stack Protector buffer overflow detection for more security
 * set timer frequency to 1000hz
-* added Exynos CAM frequecies
 * overclock MIF freq and othters freq
 * added cpu_input_boost driver
 * update zygote
 * upstream and add dedup functionality in zram
-* kernel compiled with vortex clang-15 + LLVM + polly + thinLTO + other optimization flags (for more performance)
+* Merge A305FDDU6CVD2 kernel source
+* added new features extension arm
+* removed erratum not used
+* added erratum cortex a73 and cortex a53 835769
+* added xperf code
+* added transparent hugepage mode madsive
+* upstream clocksource
+* kernel compiled with vortex clang-14 + LLVM + polly + thinLTO + other optimization flags (for more performance)
 

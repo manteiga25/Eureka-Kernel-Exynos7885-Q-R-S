@@ -4261,7 +4261,7 @@ static int binder_put_node_cmd(struct binder_proc *proc,
 		return -EFAULT;
 	ptr += sizeof(binder_uintptr_t);
 
-	binder_stat_br(proc, thread, e->cmd);
+	binder_stat_br(proc, thread, cmd);
 	binder_debug(BINDER_DEBUG_USER_REFS, "%d:%d %s %d u%016llx c%016llx\n",
 		     proc->pid, thread->pid, cmd_name, node_debug_id,
 		     (u64)node_ptr, (u64)node_cookie);
@@ -4403,7 +4403,7 @@ retry:
 			e->cmd = BR_OK;
 			ptr += sizeof(uint32_t);
 
-			binder_stat_br(proc, thread, cmd);
+			binder_stat_br(proc, thread, e->cmd);
 		} break;
 		case BINDER_WORK_TRANSACTION_COMPLETE: {
 			binder_inner_proc_unlock(proc);

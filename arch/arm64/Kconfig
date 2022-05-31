@@ -248,7 +248,7 @@ config PGTABLE_LEVELS
 	int
 	default 2 if ARM64_16K_PAGES && ARM64_VA_BITS_36
 	default 2 if ARM64_64K_PAGES && ARM64_VA_BITS_42
-	default 3 if ARM64_64K_PAGES && (ARM64_VA_BITS_48 || ARM64_USER_VA_BITS_52)
+	default 3 if ARM64_64K_PAGES && ARM64_VA_BITS_48
 	default 3 if ARM64_4K_PAGES && ARM64_VA_BITS_39
 	default 3 if ARM64_16K_PAGES && ARM64_VA_BITS_47
 	default 4 if !ARM64_64K_PAGES && ARM64_VA_BITS_48
@@ -592,35 +592,6 @@ config ARM64_VA_BITS
 	default 42 if ARM64_VA_BITS_42
 	default 47 if ARM64_VA_BITS_47
 	default 48 if ARM64_VA_BITS_48
-
-choice
-	prompt "Physical address space size"
-	default ARM64_PA_BITS_48
-	help
-	  Choose the maximum physical address range that the kernel will
-	  support.
-
-config ARM64_PA_BITS_48
-	bool "48-bit"
-
-config ARM64_PA_BITS_52
-	bool "52-bit (ARMv8.2)"
-	depends on ARM64_64K_PAGES
-	depends on ARM64_PAN || !ARM64_SW_TTBR0_PAN
-	help
-	  Enable support for a 52-bit physical address space, introduced as
-	  part of the ARMv8.2-LPA extension.
-
-	  With this enabled, the kernel will also continue to work on CPUs that
-	  do not support ARMv8.2-LPA, but with some added memory overhead (and
-	  minor performance overhead).
-
-endchoice
-
-config ARM64_PA_BITS
-	int
-	default 48 if ARM64_PA_BITS_48
-	default 52 if ARM64_PA_BITS_52
 
 config CPU_BIG_ENDIAN
        bool "Build big-endian kernel"
@@ -1041,19 +1012,6 @@ config ARM64_LSE_ATOMICS
 	  not support these instructions and requires the kernel to be
 	  built with binutils >= 2.25.
 
-config ARM64_VHE
-	bool "Enable support for Virtualization Host Extensions (VHE)"
-	default y
-	help
-	  Virtualization Host Extensions (VHE) allow the kernel to run
-	  directly at EL2 (instead of EL1) on processors that support
-	  it. This leads to better performance for KVM, as they reduce
-	  the cost of the world switch.
-
-	  Selecting this option allows the VHE feature to be detected
-	  at runtime, and does not affect processors that do not
-	  implement this feature.
-
 endmenu
 
 menu "ARMv8.2 architectural features"
@@ -1078,35 +1036,6 @@ config ARM64_UAO
 	  The feature is detected at runtime, the kernel will use the
 	  regular load/store instructions if the cpu does not implement the
 	  feature.
-	  
-config ARM64_PMEM
-	bool "Enable support for persistent memory"
-	default n
-	select ARCH_HAS_PMEM_API
-	select ARCH_HAS_UACCESS_FLUSHCACHE
-	help
-	  Say Y to enable support for the persistent memory API based on the
-	  ARMv8.2 DCPoP feature.
-
-	  The feature is detected at runtime, and the kernel will use DC CVAC
-	  operations if DC CVAP is not supported (following the behaviour of
-	  DC CVAP itself if the system does not define a point of persistence).  
-	
-config ARM64_RAS_EXTN
-	bool "Enable support for RAS CPU Extensions"
-	default n
-	help
-	  CPUs that support the Reliability, Availability and Serviceability
-	  (RAS) Extensions, part of ARMv8.2 are able to track faults and
-	  errors, classify them and report them to software.
-
-	  On CPUs with these extensions system software can use additional
-	  barriers to determine if faults are pending and read the
-	  classification from a new set of registers.
-
-	  Selecting this feature will allow the kernel to use these barriers
-	  and access the new registers if the system supports the extension.
-	  Platform RAS features may additionally depend on firmware support.
 	
 endmenu
 

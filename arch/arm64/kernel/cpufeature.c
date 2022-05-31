@@ -95,9 +95,6 @@ static struct arm64_ftr_bits ftr_id_aa64isar0[] = {
 static struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
 	ARM64_FTR_BITS(FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV3_SHIFT, 4, 0),
 	ARM64_FTR_BITS(FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
-#ifdef CONFIG_ARM64_RAS_EXTN
-	ARM64_FTR_BITS(FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_RAS_SHIFT, 4, 0),
-#endif
 	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 32, 0),
 	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 28, 4, 0),
 	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, ID_AA64PFR0_GIC_SHIFT, 4, 0),
@@ -792,27 +789,6 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
 		.field_pos = ID_AA64ISAR0_CRC32_SHIFT,
 		.min_field_value = 1,
 	},
-#ifdef CONFIG_ARM64_PMEM
-	{
-		.desc = "Data cache clean to Point of Persistence",
-		.capability = ARM64_HAS_DCPOP,
-		.matches = has_cpuid_feature,
-		.sys_reg = SYS_ID_AA64ISAR1_EL1,
-		.field_pos = ID_AA64ISAR1_DPB_SHIFT,
-		.min_field_value = 1,
-	},
-#endif
-#ifdef CONFIG_ARM64_RAS_EXTN
-	{
-		.desc = "RAS Extension Support",
-		.capability = ARM64_HAS_RAS_EXTN,
-		.matches = has_cpuid_feature,
-		.sys_reg = SYS_ID_AA64PFR0_EL1,
-		.sign = FTR_UNSIGNED,
-		.field_pos = ID_AA64PFR0_RAS_SHIFT,
-		.min_field_value = ID_AA64PFR0_RAS_V1,
-	},
-#endif /* CONFIG_ARM64_RAS_EXTN */
 	{},
 };
 

@@ -975,9 +975,6 @@ static void cpu_init_hyp_mode(void *dummy)
 	vector_ptr = (unsigned long)kvm_ksym_ref(__kvm_hyp_vector);
 
 	__cpu_init_hyp_mode(boot_pgd_ptr, pgd_ptr, hyp_stack_ptr, vector_ptr);
-	
-	if (is_kernel_in_hyp_mode())
-		kvm_timer_init_vhe();
 
 	kvm_arm_init_debug();
 }

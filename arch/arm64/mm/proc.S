@@ -146,8 +146,7 @@ SYM_FUNC_START(cpu_do_switch_mm)
 	bfi	x2, x1, #48, #16		// set the ASID
 	msr	ttbr1_el1, x2			// in TTBR1 (since TCR.A1 is set)
 	isb
-	phys_to_ttbr x0, x2
-	msr	ttbr0_el1, x2			// now update TTBR0
+	msr	ttbr0_el1, x0			// now update TTBR0
 	isb
 	b	post_ttbr_update_workaround	// Back to C code...
 SYM_FUNC_END(cpu_do_switch_mm)
@@ -164,16 +163,14 @@ SYM_FUNC_START(idmap_cpu_replace_ttbr1)
 	msr	daifset, #0xf
 
 	adrp	x1, empty_zero_page
-	phys_to_ttbr x1, x3
-	msr	ttbr1_el1, x3
+	msr	ttbr1_el1, x1
 	isb
 
 	tlbi	vmalle1
 	dsb	nsh
 	isb
 
-	phys_to_ttbr x0, x3
-	msr	ttbr1_el1, x3
+	msr	ttbr1_el1, x0
 	isb
 
 	msr	daif, x2
@@ -235,9 +232,11 @@ SYM_FUNC_START(__cpu_setup)
 	tcr_set_idmap_t0sz	x10, x9
 
 	/*
-	 * Set the IPS bits in TCR_EL1.
+	 * Read the PARange bits from ID_AA64MMFR0_EL1 and set the IPS bits in
+	 * TCR_EL1.
 	 */
-	tcr_compute_pa_size x10, #TCR_IPS_SHIFT, x5, x6
+	mrs	x9, ID_AA64MMFR0_EL1
+	bfi	x10, x9, #32, #3
 #ifdef CONFIG_ARM64_HW_AFDBM
 	/*
 	 * Hardware update of the Access and Dirty bits.

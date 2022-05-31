@@ -36,14 +36,6 @@ DEF_REG_STRUCT(MPIDR)
 DEF_REG_STRUCT(MIDR)
 DEF_REG_STRUCT(REVIDR)
 
-#ifdef CONFIG_SOC_EXYNOS7904
-/* armv8.2 */
-DEF_REG_STRUCT(CPUACTLR_v82)
-DEF_REG_STRUCT(CPUACTLR2_v82)
-DEF_REG_STRUCT(CPUACTLR3_v82)
-DEF_REG_STRUCT(CPUECTLR_v82)
-#endif
-
 #define SET_CORE_REG(r, v) { .reg = &reg_##r, .val = v }
 
 static struct core_register arm_v8_regs[] = {

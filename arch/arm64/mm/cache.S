@@ -200,57 +200,6 @@ ENTRY(__clean_dcache_area_pou)
 	dcache_by_line_op cvau, ish, x0, x1, x2, x3
 	ret
 ENDPROC(__clean_dcache_area_pou)
-
-ENTRY(__inval_dcache_area)
-__dma_inv_area:
-	add	x1, x1, x0
-	dcache_line_size x2, x3
-	sub	x3, x2, #1
-	tst	x1, x3				// end cache line aligned?
-	bic	x1, x1, x3
-	b.eq	1f
-	dc	civac, x1			// clean & invalidate D / U line
-1:	tst	x0, x3				// start cache line aligned?
-	bic	x0, x0, x3
-	b.eq	2f
-	dc	civac, x0			// clean & invalidate D / U line
-	b	3f
-2:	dc	ivac, x0			// invalidate D / U line
-3:	add	x0, x0, x2
-	cmp	x0, x1
-	b.lo	2b
-	dsb	sy
-	ret
-ENDPIPROC(__inval_dcache_area)
-ENDPROC(__dma_inv_area)
-/*
- *	__clean_dcache_area_poc(kaddr, size)
- *
- * 	Ensure that any D-cache lines for the interval [kaddr, kaddr+size)
- * 	are cleaned to the PoC.
- *
- *	- kaddr   - kernel address
- *	- size    - size in question
- */
-ENTRY(__clean_dcache_area_poc)
-	/* FALLTHROUGH */
-	
-/*
- *	__dma_clean_area(start, size)
- *	- start   - virtual start address of region
- *	- size    - size in question	
-*/
-
-__dma_clean_area:
-	dcache_by_line_op cvac, sy, x0, x1, x2, x3
-	ret
-ENDPIPROC(__clean_dcache_area_poc)
-ENDPROC(__dma_clean_area)
-
-ENTRY(__dma_flush_area)
-	dcache_by_line_op civac, sy, x0, x1, x2, x3
-	ret
-ENDPIPROC(__dma_flush_area)
 	
 /*
  *	__inval_cache_range(start, end)
@@ -261,9 +210,9 @@ ENTRY(__inval_cache_range)
 	/* FALLTHROUGH */
 
 /*
- *	__inval_cache_range(start, end)
- *	- start   - start address of region
- *	- end     - end address of region
+ *	__dma_inv_range(start, end)
+ *	- start   - virtual start address of region
+ *	- end     - virtual end address of region
  */
 __dma_inv_range:
 	dcache_line_size x2, x3
@@ -309,26 +258,9 @@ alternative_endif
 ENDPROC(__dma_clean_range)
 
 /*
- *	__clean_dcache_area_pop(kaddr, size)
- *
- * 	Ensure that any D-cache lines for the interval [kaddr, kaddr+size)
- * 	are cleaned to the PoP.
- *
- *	- kaddr   - kernel address
- *	- size    - size in question
- */
-ENTRY(__clean_dcache_area_pop)
-	dcache_by_line_op cvap, sy, x0, x1, x2, x3
-	ret
-ENDPIPROC(__clean_dcache_area_pop)
-
-/*
- *	__dma_flush_area(start, size)
- *
- *	clean & invalidate D / U line
- *
+ *	__dma_flush_range(start, end)
  *	- start   - virtual start address of region
- *	- size    - size in question
+ *	- end     - virtual end address of region
  */
 ENTRY(__dma_flush_range)
 	dcache_line_size x2, x3

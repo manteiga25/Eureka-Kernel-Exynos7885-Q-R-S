@@ -35,7 +35,8 @@ choice
 	default MALI_TMIX_R10P0 if ANDROID_VERSION = "80100"
 	default MALI_TMIX_R16P0 if ANDROID_VERSION = "90000"
         default MALI_TMIX_R19P0 if ANDROID_VERSION = "100000"
-		default MALI_TMIX_R26P0 if ANDROID_VERSION >= "110000"
+		default MALI_TMIX_R26P0 if ANDROID_VERSION >= "100100"
+		default MALI_TMIX_R34P0 if ANDROID_VERSION >= "110000"
 	help
 	  Select the gpu support version.
 
